@@ -28,8 +28,23 @@ test_dict = {
     "active": True,
     "readings": [70, 72, 71, 75]
 }
-
+print("--------------------")
 print(test_dict.get(""))
+if test1 is dict():
+    print("yes")
 
-l=[1,2,3,4,5]
-print(max(l))
+# l=[1,2,3,4,5]
+# print(max(l))
+
+
+
+
+tf_l=[True, True, True, False, True, True, True, True, True, True, True, True]
+
+if all(tf_l):
+    print("all is good")
+else:
+    print("something is wrong")
+
+for x in test1:
+    print(len(x))

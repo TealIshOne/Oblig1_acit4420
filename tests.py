@@ -2,41 +2,35 @@
 
 #testing observations
 
-from main import observations as obs
-from main import participant as part
+from main import Observations as obs
+
 from sample_data import resting
 
 
+test_data_set= [{'timestamp': 0,'heart_rate': 78, 'skin_response': 2.29, 'temperature': 33.23, 'activity_level': 0.53, 'signal_quality': 0.88}, {'timestamp': 1, 'heart_rate': 93, 'skin_response': 1.97, 'temperature': 33.19, 'activity_level': 0.4, 'signal_quality': 0.86}, {'timestamp': 2, 'heart_rate': 82, 'skin_response': 1.95, 'temperature': 33.17, 'activity_level': 0.4, 'signal_quality': 0.93}, {'timestamp': 3, 'heart_rate': 88, 'skin_response': 2.18, 'temperature': 33.17, 'activity_level': 0.39, 'signal_quality': 0.97}, {'timestamp': 4, 'heart_rate': 84, 'skin_response': 2.03, 'temperature': 33.33, 'activity_level': 0.51, 'signal_quality': 0.93}, {'timestamp': 5, 'heart_rate': 81, 'skin_response': 2.14, 'temperature': 33.32, 'activity_level': 0.45, 'signal_quality': 0.91}, {'timestamp': 6, 'heart_rate': 89, 'skin_response': 2.17, 'temperature': 33.34, 'activity_level': 0.6, 'signal_quality': 0.98}, {'timestamp': 7, 'heart_rate': 102, 'skin_response': 2.22, 'temperature': 33.37, 'activity_level': 0.41, 'signal_quality': 0.95}, {'timestamp': 8, 'heart_rate': 90, 'skin_response': 2.04, 'temperature': 33.11, 'activity_level': 0.48, 'signal_quality': 0.88}, {'timestamp': 9, 'heart_rate': 91, 'skin_response': 2.29, 'temperature': 33.2, 'activity_level': 0.52, 'signal_quality': 0.98}, {'timestamp': 10, 'heart_rate': 90, 'skin_response': 2.14, 'temperature': 33.25, 'activity_level': 0.45, 'signal_quality': 0.9}, {'timestamp': 11, 'heart_rate': 87, 'skin_response': 2.16, 'temperature': 33.19, 'activity_level': 0.6, 'signal_quality': 0.85}]
 
 
 ## FETCHING DATA ###
 profile, data=resting()
-# test1=obs(profile, data)
-# validated_prof, vlaidated_data=test1.observation_aquisition_validation()
-# #print(validated_prof)
-# #print(vlaidated_data)
-# x1, x2, x3, x4, x5 =test1.data_container_seperation()
+#test1=obs(profile, data)
+#test1=obs(profile, profile)
+test1=obs(profile, test_data_set)
+print(test1.aquisition_validation)
 
-# print(x1)
-# print(x2)
-# print(x3)
-# print(x4)
-# print(x5)
-# print(test1.data_type_validation())
+print("-----------------------------")
 
-from main import participant as part
-from sample_data import resting
+containers = test1.container_allocation()
+print(containers)
+
+print("-----------------------------")
+
+print(test1.isAllReadings)
+
+print("-----------------------------")
+print(test1.isNumReadings)
+
+print("-----------------------------")
+print(test1.CheckType)
 
 
 
-# 2. Instantiate participant directly (it inherits all methods from observations!)
-p1 = part(profile, data, "P001")
-
-# 3. Use all parent methods directly on the child instance
-p1.observation_aquisition_validation()
-x1, x2, x3, x4, x5 = p1.data_container_seperation()
-
-# 4. Access parent & child attributes directly
-print("Heart Rates:", x1)
-print("Type Validation:", p1.data_type_validation())
-print("Personal Information:", p1.Personal_information)
