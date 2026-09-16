@@ -144,7 +144,7 @@ class session (participant, observations):
             temp+=x
         return temp_sq_avg/len(self.signal_quality)   
 
-    def maximum_values():
+    def maximum_values(self):
         max_hr=max(self.heart_rate)
         max_skin_resp=max(self.skin_response)
         max_temp=max(self.temperature)

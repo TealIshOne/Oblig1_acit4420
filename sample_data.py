@@ -11,7 +11,7 @@ def moderate_activity():
 
 def high_activity():
     profile, obs = GFD(scenario="high_activity", seed=222)
-    return profile, obsS
+    return profile, obs
 
 def recovery():
     profile, obs= GFD(scenario="recovery", seed=333)
