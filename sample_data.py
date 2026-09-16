@@ -9,7 +9,7 @@ def moderate_activity():
     profile, obs = GFD(scenario="moderate_activity", seed=111)
     return profile, obs
 
-def high_acticity():
+def high_activity():
     profile, obs = GFD(scenario="high_activity", seed=222)
     return profile, obsS
 

@@ -2,86 +2,113 @@
 explain
 """
 
-### classes ###
 
-class observations:
-    """
-    validates collected observation data
-    seperates data into data containers
-    """
-    def __init__(self, data_set1=None,data_set2=None):
-        self.baselines =data_set1
-        self.data=data_set2
-        
-    def observation_validation(self):
-        try:
-            if self.baselines is None or self.data is None :
-                print("missing data set")
-                return None, None
-            else:
-                return self.baselines, self.data
-        except:
-            print("something went wrong")
-
-
-    
-    def seperate(self):
-        pass 
-
-
-class participant(observations):
-    """
-    accsessing participant baseline data
-    averaging values
-    """
+class Observations:
     def __init__(self):
         pass
 
-    def ID(self):
+    def aquisition_validation():
+        "returns True, if a data set is collected"
         pass
 
-    def heart_rate_B(self):
-        pass
-
-    def skin_respons_B(self):
-        pass
-
-    def temp_B(self):
-        pass
-    def heart_rate_avg(self):
-        pass
-
-    def skin_resp_avg(self):
+    def data_sepperation():
+        "sepperates the two components of the data set"
         pass
     
-    def temperatur_avg(self):
-        pass
-    
-    def activety_level_avg(self):
-        pass
-    
-    def signal_Q_avg(self):
+    def container_allocation():
+        "allocates all data into data containers for further use"
         pass
 
-    pass
+    def isAllReadings():
+        "returns True if all required readings are in the data set"
+        pass
 
-class session (participant):
-    """
-    maybe use decorator here?
+    def isNumReadings():
+        "returns true if number of readings in all categories meets requirement"
+        pass
 
-    """
+    def checkType():
+        "checks, and fixes data types in data containers, the data _generator returns int values,"
+        "this function simply double checks incase of formating errors"
+        pass
+
+
+    def ErrorHandling():
+        "this class is used to catch data errors before being passed on"
+        pass
+
+
+class Participant:
     def __init__(self):
         pass
 
-    def maximum_values():
+    @property
+    def _id():
         pass
 
-class session_analysis(session):
-    """
-    explain
-    compares measurments against baseline values
-    nice printout
-    """
+    @property
+    def _baseline_hr():
+        pass
+
+    @property
+    def _baselime_skin():
+        pass
+
+    @property
+    def _baseline_temp():
+        pass
+
+class Session:
     def __init__(self):
         pass
-    pass
+
+    def add_observtion(self, data_set):
+        "this function sorts through the data and rejects poor signal quality readings, and stores only *good* readings"
+        pass
+    def container_seperation():
+        "this container re-seperates the sorted data into containers"
+        pass
+
+    @property
+    def numValidRead():
+        pass
+
+
+
+
+class Analyzer:
+    def __init__(self):
+        pass
+
+    def summary_hr():
+        "returns, max, avg, min readings"
+        pass
+
+    def summary_sr():
+        "returns, max, avg, min readings"
+        pass
+
+    def summary_temp():
+        "returns, max, avg, min readings"
+        pass
+
+    def summary_sr():
+        "returns, max, avg, min readings"
+        pass
+
+    def all_avg():
+        "returns an average readings dict"
+        pass
+
+    def classify_session():
+        "analyses if session was resting, moderate, high activity, or recovery"
+        pass
+        ### COMPARISON ###
+    def compare():
+        "this function compares max, min and average to paseline values and returns deviations"
+        pass
+    ### PRESENTATION ###
+    def present_data():
+        "this function presents the calculated datas, and returns an ecouraging message"
+        pass
+    
