@@ -3,6 +3,25 @@ explain
 
 """
 
+###assistice functions###
+def three_or_more(l1,target):
+    if l1.count(target)>=3:
+        return True
+    else:
+        return False
+
+def seperate_list(l2):
+    middle_data=list()
+    last_data=list()
+    total_readings=len(l2)
+    for x in l2:
+        if (total_readings/2)-2<= x <= (total_readings/2)+2:
+            middle_data.append(x)
+        elif (total_readings-5)<= x <= total_readings:
+            last_data.append(x)
+    return middle_data, last_data
+
+
 
 class Observations:
     def __init__(self, profile_data=None, data_set=None):
@@ -317,7 +336,7 @@ class Analyzer(Session):
         "returns an average readings dict"
         return self.summary_data
    
-#    @property
+
     def classify_session(self):
         "analyses if session was resting, moderate, high activity, or recovery"
         type_data=dict()
@@ -357,7 +376,7 @@ class Analyzer(Session):
                     type_data["temperature"] = "resting"
                 elif temp_avg < self.participant._baseline_temp + 0.55:
                     type_data["temperature"] = "moderate activity"
-                elif self.participant._baseline_temp + 0.55 <= temp_avg < 42: # 42 is the temeperature human protein denaturates and is therefore set as max value
+                elif temp_avg < 42: # 42 is the temeperature human protein denaturates and is therefore set as max value
                     type_data["temperature"] = "high activity"
                 else:
                     type_data["temperature"] = "inconclusive or unknown session type"
@@ -375,23 +394,33 @@ class Analyzer(Session):
 
 
         values=list(type_data.values())
-        if all(item == "resting" for item in values):
+        #since the data_generator is based on rng and gauss distribution some values may become autliers and reult in,
+        # some parameters not linight perfectly up with the others, by checking for majority/ minimum of 3 equals, 
+        # I hope to mittigate this issue
+        if three_or_more(values,"resting"):
             return "resting"
-        elif all(item == "moderate activity" for item in values):
+        elif three_or_more(values, "moderate activity"):
             return "moderate activity"
-        elif all(item == "high activity" for item in values):
+        elif three_or_more(values, "high activity"):
             return "high activity"
-        # elif all(item == "high activity" for item in values):
-        #     return "recovery"
         else:
-            return f"inconclusive or unknown session type, {values}"
-
-
-        
+            return f"inconclusive or unknown session type, {values}"       
 
 
 
-    def recovery_tracker():
+    def recovery_tracker(self):
+        "this function checks for a restitution period based on the last 3 session timestamps"
+        " and compare it to avg, max and mid-time values"
+
+        middle, end =seperate_list(self.data_set)
+
+        check_list=list()
+
+        for x in middle:
+
+
+
+
         pass
         ### COMPARISON ###
     

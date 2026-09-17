@@ -58,3 +58,29 @@ dididi["heart_rate"] = {
             "min": min(L)
         }
 print(dididi)
+
+def majority_check(bool_list):
+    count=bool_list
+    return sum(bool(x) for x in count)> len(count)/2
+tf_l2=["r", "r", "r", "r"]
+print(majority_check(tf_l2))
+
+def three_or_more(l1,target):
+    if l1.count(target)>=3:
+        return True
+    else:
+        return False
+print(three_or_more(tf_l2,"r"))
+l22=[1,2,3,4,5,6,7,8,9,10,11,12]
+def seperate_list(l2):
+    middle_data=list()
+    last_data=list()
+    total_readings=len(l2)
+    for x in l2:
+        if (total_readings/2)-2<= x <= (total_readings/2)+2:
+            middle_data.append(x)
+        elif (total_readings-5)<= x <= total_readings:
+            last_data.append(x)
+    return middle_data, last_data
+
+print(seperate_list(l22))
