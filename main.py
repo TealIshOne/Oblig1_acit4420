@@ -257,7 +257,19 @@ class Analyzer(Session):
         "returns, max, avg, min readings"
         try:
             if self.Sortedskin_response is None:
-                
+                return "missing data set"
+            elif (isinstance(self.Sortedskin_response, list)):
+                    self.summary_data["skin_response"] = {
+                        "reference": self.participant._baseline_skin,
+                        "max": max(self.Sortedskin_response),
+                        "avg": sum(self.Sortedskin_response) / len(self.Sortedskin_response),
+                        "min": min(self.Sortedskin_response)
+                    }
+                    return self.summary_data["skin_response"]
+            else:
+                return "data set is not valid, please check the data set, summary_sr function (line 256)"
+        except:
+            return "something went wrong in the summary_sr function (line 256)"
 
 
 
@@ -266,11 +278,9 @@ class Analyzer(Session):
         try:
             if self.Sortedtemperature is None:
                 return "missing data set"
-            elif (isinstance(self.Sortedtemperature, list) and 
-                  isinstance(self._baseline_temp, dict) and 
-                  "temperature" in self._baseline_temp):
+            elif (isinstance(self.Sortedtemperature, list)):
                     self.summary_data["temperature"] = {
-                        "reference": self._baseline_temp,
+                        "reference": self.participant._baseline_temp,
                         "max": max(self.Sortedtemperature),
                         "avg": sum(self.Sortedtemperature) / len(self.Sortedtemperature),
                         "min": min(self.Sortedtemperature)
@@ -288,8 +298,9 @@ class Analyzer(Session):
         try:
             if self.Sortedactivity_level is None:
                 return "missing data set"
-            elif isinstance(self.Sortedactivity_level, list):
+            elif (isinstance(self.Sortedactivity_level, list)):
                     self.summary_data["activity_level"] = {
+                        "reference": "NA",
                         "max": max(self.Sortedactivity_level),
                         "avg": sum(self.Sortedactivity_level) / len(self.Sortedactivity_level),
                         "min": min(self.Sortedactivity_level)
@@ -306,78 +317,85 @@ class Analyzer(Session):
         "returns an average readings dict"
         return self.summary_data
    
-    @property
+#    @property
     def classify_session(self):
         "analyses if session was resting, moderate, high activity, or recovery"
         type_data=dict()
+        self.summary_hr()
+        self.summary_sr()
+        self.summary_temp()
+        self.summary_al()
 
 
         for x in self.summary_data:
             if x == "heart_rate":
                 hr_avg = self.summary_data[x].get("avg")
-                if hr_avg < 85:
+                if hr_avg < self.participant._baseline_hr+15:
                     type_data["heart_rate"] = "resting"
-                elif hr_avg < 115:
+                elif hr_avg < self.participant._baseline_hr+45:
                     type_data["heart_rate"] = "moderate activity"
-                elif hr_avg < 155:
+                elif self.participant._baseline_hr+45 < hr_avg < 220: # general formulas set 220 as maximum heartrate value before heart damage
                     type_data["heart_rate"] = "high activity"
 
                 else:
                     type_data["heart_rate"] = "inconclusive or unknown session type"
+
             elif x == "skin_response":
                 sr_avg = self.summary_data[x].get("avg")
-                if sr_avg < 1.9:
+                if sr_avg < self.participant._baseline_skin + 0.30:
                     type_data["skin_response"] = "resting"
-                elif sr_avg < 2.3:
+                elif sr_avg < self.participant._baseline_skin + 0.55:
                     type_data["skin_response"] = "moderate activity"
-                elif sr_avg < 3.2:
+                elif self.participant._baseline_skin + 0.55 < sr_avg <100: # 100 is an arbitrary estimated value
                     type_data["skin_response"] = "high activity"
                 else:
                     type_data["skin_response"] = "inconclusive or unknown session type"
 
             elif x == "temperature":
                 temp_avg = self.summary_data[x].get("avg")
-                if temp_avg < 33.3:
+                if temp_avg < self.participant._baseline_temp + 0.30:
                     type_data["temperature"] = "resting"
-                elif temp_avg < 33.6:
+                elif temp_avg < self.participant._baseline_temp + 0.55:
                     type_data["temperature"] = "moderate activity"
-                elif temp_avg < 34.0:
+                elif self.participant._baseline_temp + 0.55 <= temp_avg < 42: # 42 is the temeperature human protein denaturates and is therefore set as max value
                     type_data["temperature"] = "high activity"
                 else:
                     type_data["temperature"] = "inconclusive or unknown session type"
 
-            elif x == "activity_level":
+            elif x == "activity_level": #bsolute values, no scaling changes needed
                 al_avg = self.summary_data[x].get("avg")
                 if al_avg <= 0.25:
                     type_data["activity_level"] = "resting"
                 elif al_avg <= 0.67:
                     type_data["activity_level"] = "moderate activity"
-                elif al_avg <= 0.1:
+                elif al_avg <= 1:
                     type_data["activity_level"] = "high activity"
                 else:
                     type_data["activity_level"] = "inconclusive or unknown session type"
 
 
-
-                if all(item for item in type_data.values() if item == "resting"):
-                    return "resting"
-                elif all(item for item in type_data.values() if item == "moderate activity"):
-                    return "moderate activity"
-                elif all(item for item in type_data.values() if item == "high activity"):
-                    return "high activity"
-                elif all(item for item in type_data.values() if item == "recovery"):
-                    return "recovery"
-                else:
-                    return "inconclusive or unknown session type"
+        values=list(type_data.values())
+        if all(item == "resting" for item in values):
+            return "resting"
+        elif all(item == "moderate activity" for item in values):
+            return "moderate activity"
+        elif all(item == "high activity" for item in values):
+            return "high activity"
+        # elif all(item == "high activity" for item in values):
+        #     return "recovery"
+        else:
+            return f"inconclusive or unknown session type, {values}"
 
 
         
-        pass
+
 
 
     def recovery_tracker():
         pass
         ### COMPARISON ###
+    
+    
     def compare():
         "this function compares max, min and average to paseline values and returns deviations"
         pass
