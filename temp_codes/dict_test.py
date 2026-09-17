@@ -48,3 +48,13 @@ else:
 
 for x in test1:
     print(len(x))
+
+L=[1,2,3,4,5,6,7,8,9,10]
+
+dididi=dict()
+dididi["heart_rate"] = {
+            "max": max(L),
+            "avg": sum(L) / len(L),
+            "min": min(L)
+        }
+print(dididi)

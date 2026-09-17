@@ -17,3 +17,5 @@ running instructions
 example output
 
 known limitations
+
+#comment on the low baseline temperature

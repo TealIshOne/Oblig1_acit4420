@@ -152,7 +152,7 @@ class session (participant, observations):
         max_signal_q=max(self.signal_quality)
         return max_hr, max_skin_resp, max_temp, max_activity_l, max_signal_q
 
-    def excessive_values():
+    def excessive_values(self):
         
         pass
 
