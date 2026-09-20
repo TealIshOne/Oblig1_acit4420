@@ -10,16 +10,26 @@ def three_or_more(l1,target):
     else:
         return False
 
-def seperate_list(l2):
+def seperate_list(l2, count_condition):
     middle_data=list()
     last_data=list()
     total_readings=len(l2)
     for x in l2:
-        if (total_readings/2)-2<= x <= (total_readings/2)+2:
+        ts=x[count_condition]
+        if int((total_readings/2))-2 <= ts <= int((total_readings/2))+2:
             middle_data.append(x)
-        elif (total_readings-5)<= x <= total_readings:
+        elif (total_readings-5)<= ts <= total_readings:
             last_data.append(x)
     return middle_data, last_data
+
+def Suportive_messages(assign1, assign2, assign3, assign4):
+    messages=["rest is important!",
+              "Good job!",
+              "great!",
+              "recorded data is insufficient :("
+              ]
+    pass
+    
 
 
 
@@ -412,24 +422,80 @@ class Analyzer(Session):
         "this function checks for a restitution period based on the last 3 session timestamps"
         " and compare it to avg, max and mid-time values"
 
-        middle, end =seperate_list(self.data_set)
+        middle, end =seperate_list(self.data_set, "timestamp")
 
         check_list=list()
+        temp_val_middle=0
+        temp_val_end= 0
+        try: 
+        
+            for x in middle:
+                if "heart_rate" in x:
+                    temp_val_middle+=x["heart_rate"]
 
-        for x in middle:
+            for y in end:
+                if "heart_rate" in y:
+                    temp_val_end+=y["heart_rate"]
+                
+            avg_middle=temp_val_middle/len(middle)
+            avg_end=temp_val_end/len(end)
 
+            if (avg_middle - avg_end)> 5 and avg_middle > self.participant._baseline_hr:
+                return True,temp_val_middle, temp_val_end, avg_middle, avg_end
+            else:
+                return False,temp_val_middle, temp_val_end, avg_middle, avg_end
+        except:
+            return "something went wrong recovery_check function (line 412)"
 
+        
 
-
-        pass
-        ### COMPARISON ###
     
     
-    def compare():
-        "this function compares max, min and average to paseline values and returns deviations"
-        pass
     ### PRESENTATION ###
-    def present_data():
+    def data_summary(self,hr_data=None, sr_data=None, temp_data=None, al_data=None, activety_type=None, recover_status=None):
         "this function presents the calculated datas, and returns an ecouraging message"
-        pass
+        hr_dict=hr_data
+        sr_dict=sr_data
+        temp_dict=temp_data
+        al_dict=al_data
+        data_list=[hr_data,sr_data,temp_data, al_data]
+        recovery_check=None
+
+        if recover_status:
+            recovery_check="yes"
+        elif not recover_status:
+            recovery_check= "No"
+        else:
+            recovery_check = None
+
+
+        try:
+            if hr_data is None or sr_data is None or temp_data is None or al_data is None:
+                return "missing data (line 446)"
+            elif all(isinstance(data, dict) for data in data_list):
+                return [f"you just finished a session of {activety_type}", 
+                        "good job!",
+                        f"your heart rate reached {hr_data.get("max")}",
+                        f"this is {hr_data.get("max")-hr_data.get("reference")} more than your refference {hr_data.get("reference")}",
+                        "________________________________________",
+                        f"your skin response reached {sr_data.get("max")}",
+                        f"this is {sr_data.get("max")-sr_data.get("reference")} more than your refference {sr_data.get("reference")}",
+                        "________________________________________",
+
+                        f"your temperature reached {temp_data.get("max")}",
+                        f"this is {temp_data.get("max")-temp_data.get("reference")} more than your refference {temp_data.get("reference")}",
+                        "________________________________________",
+                        f"your activety level reached {al_data.get("max")}",
+                        f"this is a span of {al_data.get("max")-al_data.get("min")} across the session, your minimum activety level was {al_data.get("min")}",
+                        "________________________________________",
+                        "your average values were as follows",
+                        f"average heart rate across the session {hr_data.get("avg")}",
+                        f"average skin response across the session {sr_data.get("avg")}",
+                        f"average temperature across the session {temp_data.get("avg")}",
+                        f"average activety level across the session {hr_data.get("avg")}",
+                        f"recovery period? {recovery_check}"
+                        ]
+
+        except:
+            return "something went wrong(line 451)"
     
