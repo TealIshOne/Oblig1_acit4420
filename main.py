@@ -3,15 +3,10 @@ code
 """
 
 #functions
-def three_or_more(l1,target):
-    if l1.count(target)>=3:
-        return True
-    else:
-        return False
 
 
 def majority(l1, target):
-    if l1.count(target)>len(l1)/2:
+    if l1.count(target) >= len(l1)/2:
         return True
     else:
         return False
@@ -157,11 +152,11 @@ class Observation:
     def ValidDataContainerAllocation(self):
         try:
             if self.Valid:
-                self.heart_rate = [x.get("heart_rate") for x in self.Valid]
-                self.skin_response = [x.get("skin_response") for x in self.Valid]
-                self.temperature = [x.get("temperature") for x in self.Valid]
-                self.activity_level = [x.get("activity_level") for x in self.Valid]
-                self.signal_quality = [x.get("signal_quality") for x in self.Valid]
+                self.heart_rate = [x.get("heart_rate") for x in self.Valid if 0 < x["heart_rate"] <220]
+                self.skin_response = [x.get("skin_response") for x in self.Valid if 0 < x["skin_response"] <3.5]
+                self.temperature = [x.get("temperature") for x in self.Valid if 30 < x["temperature"] <38]
+                self.activity_level = [x.get("activity_level") for x in self.Valid if 0 <= x["activity_level"] <= 1]
+                self.signal_quality = [x.get("signal_quality") for x in self.Valid if 0 <= x["signal_quality"] <= 1]
                 return self.heart_rate, self.skin_response, self.temperature, self.activity_level, self.signal_quality
             else:
                 return "the data container is empty","the data container is empty", "the data container is empty","the data container is empty","the data container is empty"
@@ -307,24 +302,21 @@ class sessionMath(SessionsStorage):
             for values in self.raw:
                 if values.activity_level and isinstance(values.activity_level,list):
                     all_al.extend(values.activity_level)
-                elif (isinstance(values.activity_level, list)):
-                        if not all_al:
-                            self.summary_data["activity_level"] = {
-                            "reference": "NA",
-                            "max": 0,
-                            "avg": 0,
-                            "min": 0
-                            }
-                        else:
-                            self.summary_data["activity_level"] = {
-                                "reference": "NA",
-                                "max": max(all_al),
-                                "avg": sum(all_al) / len(all_al),
-                                "min": min(all_al)
-                            }
-                        return self.summary_data["activity_level"]
+            if all_al:
+                self.summary_data["activity_level"] = {
+                    "reference": "NA",
+                    "max": max(all_al),
+                    "avg": sum(all_al) / len(all_al),
+                    "min": min(all_al)
+                }
             else:
-                return "data set is not valid, please check the data set, summary_al function (line 297)"
+                self.summary_data["activity_level"] = {
+                "reference": "NA",
+                "max": 0,
+                "avg": 0,
+                "min": 0
+                }
+            return self.summary_data["activity_level"]
         
 
         except Exception as e:
@@ -337,24 +329,21 @@ class sessionMath(SessionsStorage):
             for values in self.raw:
                 if values.signal_quality and isinstance(values.signal_quality,list):
                     all_sig.extend(values.signal_quality)
-                elif (isinstance(values.signal_quality, list)):
-                        if not all_sig:
-                            self.summary_data["signal_quality"] = {
-                            "reference": "NA",
-                            "max": 0,
-                            "avg": 0,
-                            "min": 0
-                            }
-                        else:
-                            self.summary_data["signal_quality"] = {
-                                "reference": "NA",
-                                "max": max(all_sig),
-                                "avg": sum(all_sig) / len(all_sig),
-                                "min": min(all_sig)
-                            }
-                        return self.summary_data["signal_quality"]
+            if all_sig:
+                self.summary_data["signal_quality"] = {
+                    "reference": "NA",
+                    "max": max(all_sig),
+                    "avg": sum(all_sig) / len(all_sig),
+                    "min": min(all_sig)
+                }
             else:
-                return "data set is not valid, please check the data set, summary_signal function (line 297)"
+                self.summary_data["signal_quality"] = {
+                "reference": "NA",
+                "max": 0,
+                "avg": 0,
+                "min": 0
+                }
+            return self.summary_data["activity_level"]
         
 
         except Exception as e:
