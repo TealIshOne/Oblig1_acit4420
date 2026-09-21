@@ -6,16 +6,19 @@ obligatory assignment
 | ---------------------------- | -------------- |
 | Ida Cecilie Brænde Svendsen | s371425        |
 
-Application description
+Short project description
 
-class descriptions
+Class design and explanation of each class's responsibility
 
-- where composition, encapsulations, inheritance, overriding
+--> Clear identification of where composition, encapsulation, inheritance, and overriding are used (or justified)
 
-running instructions
+-->Stated assumptions and classification rules
 
-example output
+Instructions to install and run the code
 
-known limitations
+Example output
+
+Known limitations
+
 
 #comment on the low baseline temperature

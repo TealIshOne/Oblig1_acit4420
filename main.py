@@ -1,14 +1,21 @@
 """
-explain
-
+code
 """
 
-###assistice functions###
+#functions
 def three_or_more(l1,target):
     if l1.count(target)>=3:
         return True
     else:
         return False
+
+
+def majority(l1, target):
+    if l1.count(target)>len(l1)/2:
+        return True
+    else:
+        return False
+
 
 def seperate_list(l2, count_condition):
     middle_data=list()
@@ -22,344 +29,353 @@ def seperate_list(l2, count_condition):
             last_data.append(x)
     return middle_data, last_data
 
-def Suportive_messages(assign1, assign2, assign3, assign4):
+def suportive_messages(assign1):
     messages=["rest is important!",
               "Good job!",
               "great!",
+              "a good rest is good for the soul!",
               "recorded data is insufficient :("
               ]
-    pass
-    
+    possible_assign=["resting", "moderate activity", "high activity", "recovery", "poor_quality"]
+    if assign1 in possible_assign:
+        if assign1==possible_assign[0]:
+            return messages[0]
+        elif assign1==possible_assign[1]:
+            return messages[1]
+        elif assign1==possible_assign[2]:
+            return messages[2]
+        elif assign1==possible_assign[3]:
+            return messages[3]
+        elif assign1==possible_assign[4]:
+            return messages[4]
+    else:
+        return "hello, your activety class has eluded me"
+
+def more_or_less(val):
+    if val < 1:
+        return "less"
+    elif val> 1:
+        return "more"
+    else: 
+        return "ERROR"
 
 
+#classes
 
-class Observations:
-    def __init__(self, profile_data=None, data_set=None):
-        ### data sets ###
-        self.profile_data = profile_data
-        self.data_set = data_set
-
-        #### data containers ###
-        self.available_readings = ["heart_rate", "skin_response", "temperature", "activity_level", "signal_quality"]
-
-        self.heart_rate = list()
-        self.skin_response = list()
-        self.temperature = list()
-        self.activity_level = list()
-
-    @property
-    def aquisition_validation(self):
-        "returns True, if a data set is collected"
-        try: 
-            if self.profile_data is None or self.data_set is None:
-                print("missing data set")
-                return False
-            else:
-                return True
-        except:
-            print("something went wrong")
-
-
-    # def data_sepperation():
-    #     "sepperates the two components of the data set"
-    #     pass
-    
-    def container_allocation(self):
-        "allocates all data into data containers for further use"
-        try:
-
-            self.heart_rate = [x.get("heart_rate") for x in self.data_set]
-            self.skin_response = [x.get("skin_response") for x in self.data_set]
-            self.temperature = [x.get("temperature") for x in self.data_set]
-            self.activity_level = [x.get("activity_level") for x in self.data_set]
-            self.signal_quality = [x.get("signal_quality") for x in self.data_set]
-            return (self.heart_rate, self.skin_response, self.temperature, self.activity_level, self.signal_quality)
-        except AttributeError:
-                raise ValueError("the data set is not a list, please check the data set (function,line 36)")    
- 
-
-    @property
-    def isAllReadings(self):
-        "returns True if all required readings are in the data set"
-        check_list = list()
-        for x in self.available_readings: #loops accross the self.available_readings
-            for y in self.data_set: #loops
-                if x in y.keys():
-                    check_list.append(True)
-                else:
-                    check_list.append(False)
-        
-        return all(check_list)
-                
-    @property
-    def isNumReadings(self):
-        "returns true if number of readings in all categories meets requirement"
-        check_list = list()
-        for x in self.data_set:
-            if len(x) > 6:
-                check_list.append(False)
-            else:
-                check_list.append(True)
-
-        return all(check_list)
-
-    @property
-    def CheckType(self):
-        "checks if all numeric values are int, or float this function simply double checks incase of formating errors"
-        try:
-            _check_heart = all(type(x) in (int,float) for x in self.heart_rate)
-            _check_skin = all(type(x) in (int,float) for x in self.skin_response)
-            _check_temp = all(type(x) in (int,float) for x in self.temperature)
-            _check_activity = all(type(x) in (int,float) for x in self.activity_level)
-            _check_signal = all(type(x) in (int,float) for x in self.signal_quality)
-            if all([_check_heart, _check_skin, _check_temp, _check_activity, _check_signal]):
-                return True
-            else:
-                return False
-        except:
-            raise TypeError("data type error, please check the data set (function,line 80)")
-
-
-
-    # def ErrorHandling(self):
-    #     "this class is used to catch data errors before being passed on"
-
-    #     pass
-
-
-
-
-class Participant(Observations):
+class Participant:
+    """
+    this class acsesses and stores Personal information from the user
+    """
     def __init__(self,profile_data=None):
-        super().__init__(profile_data)
+            
+        self.personal_data=profile_data
 
         self._participant_id = None
         self._baseline_hr = None
         self._baseline_skin = None
         self._baseline_temp = None
-
-        baseline_data = ["baseline_heart_rate", "baseline_skin_response", "baseline_temperature"]
-
-        
+    
+#            baseline_data = ["baseline_heart_rate", "baseline_skin_response", "baseline_temperature"]
     def SetProfileData(self):
-        try:
-            for x in self.profile_data:
-                if self.profile_data is None:
-                    return "missing participant personal data"
-                elif x == "participant_id":
-                    self._participant_id = self.profile_data.get("participant_id")
-                elif x == "baseline_heart_rate":
-                    self._baseline_hr = self.profile_data.get("baseline_heart_rate")
-                elif x == "baseline_skin_response":
-                    self._baseline_skin = self.profile_data.get("baseline_skin_response")
-                elif x == "baseline_temperature":
-                    self._baseline_temp = self.profile_data.get("baseline_temperature")
-        except:
-            return "something went wrong in the SetProfileData function (line 115)"
+            try:
+                if isinstance(self.personal_data,dict):
+                    self._participant_id = self.personal_data.get("participant_id")
+                    self._baseline_hr = self.personal_data.get("baseline_heart_rate")
+                    self._baseline_skin = self.personal_data.get("baseline_skin_response")
+                    self._baseline_temp = self.personal_data.get("baseline_temperature")
+                else:
+                    print( "your personal data is not formated correctly")
+            except:
+                return "something went wrong in Participant, SetProfileData (line 23)"
     @property
     def ID(self):
-        try:
-            return self._participant_id
-
-        except:
-            return "something went wrong in the _id function (line 131)"
+        return self._participant_id
 
 
     @property
     def Baseline_HR(self):
-        try:
-            if self._baseline_hr is None:
-                return "missing baseline heart rate data"
-            else:
-                return self._baseline_hr
-        except:
-            return "something went wrong in the _baseline_hr function (line 140)"
+        return self._baseline_hr
+
 
 
     @property
     def Baseline_Skin(self):
-        try:
-            if self._baseline_skin is None:
-                return "missing baseline skin data"
-            else:
-                return self._baseline_skin
-        except:
-            return "something went wrong in the _baseline_skin function (line 148)"
+        return self._baseline_skin
+
 
 
     @property
     def Baseline_Temp(self):
+
+        return self._baseline_temp
+
+
+
+class Observation:
+
+    def __init__(self, raw_data = None):
+        self.raw_data=raw_data
+
+        self.inValid=list()
+        self.Valid=list()
+
+
+        self.heart_rate = list()
+        self.skin_response = list()
+        self.temperature = list()
+        self.activity_level = list()
+        self.signal_quality=list()
+
+    def isValid(self, Signal_threshold=0.8):
+        """ check if the raw data is valid, within realistic limits and meets quality standards"""
+
         try:
-            return self._baseline_temp
-        except:
-            return "something went wrong in the _baseline_temp function (line 156)"
-
-
-
-class Session(Observations):
-    def __init__(self, profile_data=None, data_set=None):
-        super().__init__(profile_data, data_set)
-        self.Sortedheart_rate=list()
-        self.Sortedskin_response=list()
-        self.Sortedtemperature=list()
-        self.Sortedactivity_level=list()
-
-    def sort_observations(self):
-        "this function sorts through the data and rejects poor signal quality readings, and stores only *good* readings"
-        try:
-            if self.data_set is None:
-                return "missing data set"   
+            if isinstance(self.raw_data,list):
+                for x in self.raw_data:
+                    if isinstance(x,dict):
+                        if x.get("signal_quality") < Signal_threshold:
+                            self.inValid.append(x)
+                        elif None in x.values():
+                            self.inValid.append(x)
+                        else:
+                            self.Valid.append(x)
+                    else:
+                        return " the contnet of your raw_data list is not dictionaries (line 71)", " the contnet of your raw_data list is not dictionaries (line 71)"
             else:
-                self.Sortedheart_rate=[x.get("heart_rate") for x in self.data_set if x.get("signal_quality") > 0.8]
-                self.Sortedskin_response=[x.get("skin_response") for x in self.data_set if x.get("signal_quality") > 0.8]  
-                self.Sortedtemperature=[x.get("temperature") for x in self.data_set if x.get("signal_quality") > 0.8]
-                self.Sortedactivity_level=[x.get("activity_level") for x in self.data_set if x.get("signal_quality") > 0.8]
-                return (self.Sortedheart_rate, self.Sortedskin_response, self.Sortedtemperature, self.Sortedactivity_level)
+                return "the raw data you provided is not formated correctly (line 69)", "the raw data you provided is not formated correctly (line 69)"
+            return self.inValid, self.Valid
+        
         except:
-            return "something went wrong in the sort_observations function (line 180)"
-  
-
+            return "something went wrong in Observation, isValid (line 64)"
 
 
     @property
-    def numValidRead(self):
-        "returns the number of valid readings in the data set"
-        containers = [self.Sortedheart_rate, 
-                      self.Sortedskin_response, 
-                      self.Sortedtemperature, 
-                      self.Sortedactivity_level]
+    def ValidValues(self):
+        return self.Valid
+
+
+    def ValidDataContainerAllocation(self):
         try:
-            valid_readings = (
-                all([isinstance(con, list) for con in containers]) and 
-                all([len(con) > 0 for con in containers]) and
-                len(set(len(con) == len(containers[0]) for con in containers)) == 1)
-
-            if valid_readings:
-                numValidRead=[
-                    len([item for item in self.Sortedheart_rate if item is not None]),
-                    len([item for item in self.Sortedskin_response if item is not None]),
-                    len([item for item in self.Sortedtemperature if item is not None]),
-                    len([item for item in self.Sortedactivity_level if item is not None])]
-                
-            if len(set(numValidRead)) == 1:
-                return (numValidRead[0], numValidRead[1], numValidRead[2], numValidRead[3])
-
+            if self.Valid:
+                self.heart_rate = [x.get("heart_rate") for x in self.Valid]
+                self.skin_response = [x.get("skin_response") for x in self.Valid]
+                self.temperature = [x.get("temperature") for x in self.Valid]
+                self.activity_level = [x.get("activity_level") for x in self.Valid]
+                self.signal_quality = [x.get("signal_quality") for x in self.Valid]
+                return self.heart_rate, self.skin_response, self.temperature, self.activity_level, self.signal_quality
             else:
-                return " data is missing please check the data set"
+                return "the data container is empty","the data container is empty", "the data container is empty","the data container is empty","the data container is empty"
         except:
-            return "something went wrong in the numValidRead function (line 200)"
-        
+            return "something went wrong on Observation, ValidDataContainerAllocation (line 98)"
+  
+    def ValidateType(self):
+            try:
+
+                _check_heart = all(type(x) in (int,float) for x in self.heart_rate)
+                _check_skin = all(type(x) in (int,float) for x in self.skin_response)
+                _check_temp = all(type(x) in (int,float) for x in self.temperature)
+                _check_activity = all(type(x) in (int,float) for x in self.activity_level)
+                _check_signal = all(type(x) in (int,float) for x in self.signal_quality)
+                if all([_check_heart, _check_skin, _check_temp, _check_activity, _check_signal]) and all([self.heart_rate, self.skin_response, self.temperature, self.activity_level, self.signal_quality]):
+                    return True #, [_check_heart,_check_skin,_check_temp,_check_activity,_check_signal],[self.heart_rate, self.skin_response, self.temperature, self.activity_level, self.signal_quality]
+                else:
+                    return False #, [_check_heart,_check_skin,_check_temp,_check_activity,_check_signal], [self.heart_rate, self.skin_response, self.temperature, self.activity_level, self.signal_quality]
+            except:
+                return "something went wrong on Observation, ValidateType (line 116)"
+
+class SessionsStorage:
+    def __init__(self, *raw_datasets: list):
+        self.collection_raw_dataset=raw_datasets
+        self.raw=list()
+        self.all_valid_record=list()
+        self.all_invalid_record=list()
+
+    def ValidateAll(self):
+        for entry in self.collection_raw_dataset:
+            obs_instance=Observation(entry)
+            invalid, valid = obs_instance.isValid()
+            
+
+            obs_instance.ValidDataContainerAllocation()
+            self.raw.append(obs_instance)
+            
+            if valid:
+                self.all_valid_record.append(valid)
+            if invalid:
+                self.all_invalid_record.append(invalid)
+        return self.all_invalid_record, self. all_valid_record
 
 
 
-class Analyzer(Session):
-    def __init__(self, profile_data=None, data_set=None):
-        super().__init__(profile_data, data_set)
-        self.participant= Participant(profile_data)
-
-        self.summary_data = dict()
-
+class sessionMath(SessionsStorage):
+    def __init__(self, profile_data=None, *raw_datasets):
+        SessionsStorage.__init__(self, *raw_datasets)
+        self.participant = Participant(profile_data)
         self.participant.SetProfileData()
-        self.sort_observations()
+        self.summary_data = dict()
         
+        self.ValidateAll()
 
-    def summary_hr(self):
-        "returns, max, avg, min readings"
+
+    def hr_info(self):
         try:
-            if self.Sortedheart_rate is None:
-                return "missing data set"
-            elif (isinstance(self.Sortedheart_rate, list)):
-                    self.summary_data["heart_rate"] = {
-                        "reference": self.participant._baseline_hr,
-                        "max": max(self.Sortedheart_rate),
-                        "avg": sum(self.Sortedheart_rate) / len(self.Sortedheart_rate),
-                        "min": min(self.Sortedheart_rate)
-                    }
-                    return self.summary_data["heart_rate"]
+            all_hr=list()
+            for values in self.raw:
+                if values.heart_rate and isinstance(values.heart_rate,list):
+                    all_hr.extend(values.heart_rate)
+            if all_hr:
+                self.summary_data["heart_rate"] = {
+                    "reference": self.participant.Baseline_HR,
+                    "max": max(all_hr),
+                    "avg": sum(all_hr) / len(all_hr),
+                    "min": min(all_hr)
+                }
+
+            elif not all_hr:
+                self.summary_data["heart_rate"] = {
+                    "reference": self.participant.Baseline_HR,
+                    "max": 0,
+                    "avg": 0,
+                    "min": 0
+                }
             else:
-                return "data set is not valid, please check the data set, summary_hr function (line 234)"
-        except:
-            return "something went wrong in the summary_hr function (line 234)"
+                return "something went wrong(line183)"
+            return self.summary_data["heart_rate"]
+        except Exception as e:
+            return f"something went wrong in sessionMath, hr_info: {type(e).__name__} - {e}"
 
 
-    def summary_sr(self):
-        "returns, max, avg, min readings"
+    def sr_info(self):
         try:
-            if self.Sortedskin_response is None:
-                return "missing data set"
-            elif (isinstance(self.Sortedskin_response, list)):
-                    self.summary_data["skin_response"] = {
-                        "reference": self.participant._baseline_skin,
-                        "max": max(self.Sortedskin_response),
-                        "avg": sum(self.Sortedskin_response) / len(self.Sortedskin_response),
-                        "min": min(self.Sortedskin_response)
-                    }
-                    return self.summary_data["skin_response"]
+            all_sr=list()
+            for values in self.raw:
+                if values.skin_response and isinstance(values.skin_response,list):
+                    all_sr.extend(values.skin_response)
+            if all_sr:
+                self.summary_data["skin_response"] = {
+                    "reference": self.participant.Baseline_Skin,
+                    "max": max(all_sr),
+                    "avg": sum(all_sr) / len(all_sr),
+                    "min": min(all_sr)
+                }
+
+            elif not all_sr:
+                self.summary_data["skin_response"] = {
+                    "reference": self.participant.Baseline_Skin,
+                    "max": 0,
+                    "avg": 0,
+                    "min": 0
+                }
             else:
-                return "data set is not valid, please check the data set, summary_sr function (line 256)"
-        except:
-            return "something went wrong in the summary_sr function (line 256)"
+                return "something went wrong(line183)"
+            return self.summary_data["skin_response"]
+        except Exception as e:
+            return f"something went wrong in sessionMath, sr_info: {type(e).__name__} - {e}"
 
 
-
-    def summary_temp(self):
-        "returns, max, avg, min readings"
+    def temp_info(self):
         try:
-            if self.Sortedtemperature is None:
-                return "missing data set"
-            elif (isinstance(self.Sortedtemperature, list)):
-                    self.summary_data["temperature"] = {
-                        "reference": self.participant._baseline_temp,
-                        "max": max(self.Sortedtemperature),
-                        "avg": sum(self.Sortedtemperature) / len(self.Sortedtemperature),
-                        "min": min(self.Sortedtemperature)
-                    }
-                    return self.summary_data["temperature"]
+            all_temp=list()
+            for values in self.raw:
+                if values.temperature and isinstance(values.temperature,list):
+                    all_temp.extend(values.temperature)
+            if all_temp:
+                self.summary_data["temperature"] = {
+                    "reference": self.participant.Baseline_Temp,
+                    "max": max(all_temp),
+                    "avg": sum(all_temp) / len(all_temp),
+                    "min": min(all_temp)
+                }
+
+            elif not all_temp:
+                self.summary_data["temperature"] = {
+                    "reference": self.participant.Baseline_Temp,
+                    "max": 0,
+                    "avg": 0,
+                    "min": 0
+                }
             else:
-                return "data set is not valid, please check the data set, summary_temp function (line 276)"
+                return "something went wrong(line183)"
+            return self.summary_data["temperature"]
+        except Exception as e:
+            return f"something went wrong in sessionMath, temp_info: {type(e).__name__} - {e}"
 
-        except:
-            return "something went wrong in the summary_temp function (line 276)"
-   
 
-    def summary_al(self):
-        "returns, max, avg, min readings"
+    def al_info(self):
         try:
-            if self.Sortedactivity_level is None:
-                return "missing data set"
-            elif (isinstance(self.Sortedactivity_level, list)):
-                    self.summary_data["activity_level"] = {
-                        "reference": "NA",
-                        "max": max(self.Sortedactivity_level),
-                        "avg": sum(self.Sortedactivity_level) / len(self.Sortedactivity_level),
-                        "min": min(self.Sortedactivity_level)
-                    }
-                    return self.summary_data["activity_level"]
+            all_al=list()
+            for values in self.raw:
+                if values.activity_level and isinstance(values.activity_level,list):
+                    all_al.extend(values.activity_level)
+                elif (isinstance(values.activity_level, list)):
+                        if not all_al:
+                            self.summary_data["activity_level"] = {
+                            "reference": "NA",
+                            "max": 0,
+                            "avg": 0,
+                            "min": 0
+                            }
+                        else:
+                            self.summary_data["activity_level"] = {
+                                "reference": "NA",
+                                "max": max(all_al),
+                                "avg": sum(all_al) / len(all_al),
+                                "min": min(all_al)
+                            }
+                        return self.summary_data["activity_level"]
             else:
                 return "data set is not valid, please check the data set, summary_al function (line 297)"
+        
 
-        except:
-            return "something went wrong in the summary_al function (line 297)"
+        except Exception as e:
+            return f"something went wrong in sessionMath, al_info: {type(e).__name__} - {e}"
+  
+
+    def signal_info(self):
+        try:
+            all_sig=list()
+            for values in self.raw:
+                if values.signal_quality and isinstance(values.signal_quality,list):
+                    all_sig.extend(values.signal_quality)
+                elif (isinstance(values.signal_quality, list)):
+                        if not all_sig:
+                            self.summary_data["signal_quality"] = {
+                            "reference": "NA",
+                            "max": 0,
+                            "avg": 0,
+                            "min": 0
+                            }
+                        else:
+                            self.summary_data["signal_quality"] = {
+                                "reference": "NA",
+                                "max": max(all_sig),
+                                "avg": sum(all_sig) / len(all_sig),
+                                "min": min(all_sig)
+                            }
+                        return self.summary_data["signal_quality"]
+            else:
+                return "data set is not valid, please check the data set, summary_signal function (line 297)"
+        
+
+        except Exception as e:
+            return f"something went wrong in sessionMath, temp_info: {type(e).__name__} - {e}"
 
     @property
-    def all_calculated_data(self):
-        "returns an average readings dict"
+    def all_info_dict(self):
         return self.summary_data
-   
 
-    def classify_session(self):
-        "analyses if session was resting, moderate, high activity, or recovery"
+    def SessionClassification(self):
         type_data=dict()
-        self.summary_hr()
-        self.summary_sr()
-        self.summary_temp()
-        self.summary_al()
-
+        
+        self.hr_info()
+        self.sr_info()
+        self.temp_info()
+        self.al_info()
 
         for x in self.summary_data:
             if x == "heart_rate":
                 hr_avg = self.summary_data[x].get("avg")
-                if hr_avg < self.participant._baseline_hr+15:
+                if hr_avg < self.participant._baseline_hr +15:
                     type_data["heart_rate"] = "resting"
                 elif hr_avg < self.participant._baseline_hr+45:
                     type_data["heart_rate"] = "moderate activity"
@@ -407,95 +423,12 @@ class Analyzer(Session):
         #since the data_generator is based on rng and gauss distribution some values may become autliers and reult in,
         # some parameters not linight perfectly up with the others, by checking for majority/ minimum of 3 equals, 
         # I hope to mittigate this issue
-        if three_or_more(values,"resting"):
+        if majority(values,"resting"):
             return "resting"
-        elif three_or_more(values, "moderate activity"):
+        elif majority(values, "moderate activity"):
             return "moderate activity"
-        elif three_or_more(values, "high activity"):
+        elif majority(values, "high activity"):
             return "high activity"
         else:
-            return f"inconclusive or unknown session type, {values}"       
-
-
-
-    def recovery_tracker(self):
-        "this function checks for a restitution period based on the last 3 session timestamps"
-        " and compare it to avg, max and mid-time values"
-
-        middle, end =seperate_list(self.data_set, "timestamp")
-
-        check_list=list()
-        temp_val_middle=0
-        temp_val_end= 0
-        try: 
-        
-            for x in middle:
-                if "heart_rate" in x:
-                    temp_val_middle+=x["heart_rate"]
-
-            for y in end:
-                if "heart_rate" in y:
-                    temp_val_end+=y["heart_rate"]
-                
-            avg_middle=temp_val_middle/len(middle)
-            avg_end=temp_val_end/len(end)
-
-            if (avg_middle - avg_end)> 5 and avg_middle > self.participant._baseline_hr:
-                return True,temp_val_middle, temp_val_end, avg_middle, avg_end
-            else:
-                return False,temp_val_middle, temp_val_end, avg_middle, avg_end
-        except:
-            return "something went wrong recovery_check function (line 412)"
-
-        
-
-    
-    
-    ### PRESENTATION ###
-    def data_summary(self,hr_data=None, sr_data=None, temp_data=None, al_data=None, activety_type=None, recover_status=None):
-        "this function presents the calculated datas, and returns an ecouraging message"
-        hr_dict=hr_data
-        sr_dict=sr_data
-        temp_dict=temp_data
-        al_dict=al_data
-        data_list=[hr_data,sr_data,temp_data, al_data]
-        recovery_check=None
-
-        if recover_status:
-            recovery_check="yes"
-        elif not recover_status:
-            recovery_check= "No"
-        else:
-            recovery_check = None
-
-
-        try:
-            if hr_data is None or sr_data is None or temp_data is None or al_data is None:
-                return "missing data (line 446)"
-            elif all(isinstance(data, dict) for data in data_list):
-                return [f"you just finished a session of {activety_type}", 
-                        "good job!",
-                        f"your heart rate reached {hr_data.get("max")}",
-                        f"this is {hr_data.get("max")-hr_data.get("reference")} more than your refference {hr_data.get("reference")}",
-                        "________________________________________",
-                        f"your skin response reached {sr_data.get("max")}",
-                        f"this is {sr_data.get("max")-sr_data.get("reference")} more than your refference {sr_data.get("reference")}",
-                        "________________________________________",
-
-                        f"your temperature reached {temp_data.get("max")}",
-                        f"this is {temp_data.get("max")-temp_data.get("reference")} more than your refference {temp_data.get("reference")}",
-                        "________________________________________",
-                        f"your activety level reached {al_data.get("max")}",
-                        f"this is a span of {al_data.get("max")-al_data.get("min")} across the session, your minimum activety level was {al_data.get("min")}",
-                        "________________________________________",
-                        "your average values were as follows",
-                        f"average heart rate across the session {hr_data.get("avg")}",
-                        f"average skin response across the session {sr_data.get("avg")}",
-                        f"average temperature across the session {temp_data.get("avg")}",
-                        f"average activety level across the session {hr_data.get("avg")}",
-                        f"recovery period? {recovery_check}"
-                        ]
-
-        except:
-            return "something went wrong(line 451)"
+            return f"inconclusive or unknown session type, {values}"
     
