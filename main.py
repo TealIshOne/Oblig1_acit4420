@@ -12,17 +12,48 @@ def majority(l1, target):
         return False
 
 
-def seperate_list(l2, count_condition):
-    middle_data=list()
-    last_data=list()
-    total_readings=len(l2)
-    for x in l2:
-        ts=x[count_condition]
-        if int((total_readings/2))-2 <= ts <= int((total_readings/2))+2:
-            middle_data.append(x)
-        elif (total_readings-5)<= ts <= total_readings:
-            last_data.append(x)
-    return middle_data, last_data
+
+
+
+
+def Downward_trend(valid_dataset, metric_key, thresheold=0.85):
+
+    trend_results = []
+
+    for session in valid_dataset:
+        # 1. Extract valid numerical values for the metric from this session
+        data = [
+            reading[metric_key]
+            for reading in session
+            if isinstance(reading, dict) and reading.get(metric_key) is not None
+        ]
+
+        total_pairs = 0
+        reduction_pairs = 0
+
+        # 2. Count pairwise reductions within the session
+        for i in range(len(data)):
+            for j in range(i + 1, len(data)):
+                total_pairs += 1
+                if data[j] < data[i]:
+                    reduction_pairs += 1
+
+        # 3. Determine if session meets the threshold ratio
+        if total_pairs == 0:
+            trend_results.append(False)
+        else:
+            is_downward = (reduction_pairs / total_pairs) > thresheold
+            trend_results.append(is_downward)
+
+    return trend_results
+
+def matching_lists(*truthy_lists):
+
+ #   return [all(element == items[0] for element in items) for items in zip(*truthy_lists)]
+    return [all(items) for items in zip(*truthy_lists)]
+
+
+#text functions*
 
 def suportive_messages(assign1):
     messages=["rest is important!",
@@ -211,7 +242,32 @@ class sessionMath(SessionsStorage):
         
         self.ValidateAll()
 
+        self.all_hr=list()
+    def recoveryTracker(self):
+        "this function checks for a restitution period based on the last 3 session timestamps"
+        " and compare it to avg, max and mid-time values"
+        # data=self.all_valid_record
+        # sorted_data=sort_dict_list(self.all_valid_record, "heart_rate")
 
+        checking_hr = Downward_trend(self.all_valid_record, "heart_rate")
+        checking_sr= Downward_trend(self.all_valid_record, "skin_response")
+        checking_temp= Downward_trend(self.all_valid_record, "temperature")
+        checking_al= Downward_trend(self.all_valid_record, "activity_level")
+
+        isRecovery=matching_lists(checking_hr,checking_sr, checking_temp, checking_al)
+        recovery_msg=[]
+        recovery_check=False
+        count=1
+        for count,x in enumerate(isRecovery,start=1):
+            if x is True:
+                recovery_msg.append(f"data from session {count} is  a recovery session")
+                recovery_check=True
+            elif x is False:
+                continue
+            else:
+                recovery_msg.append("something went wrong")
+        return  recovery_check, recovery_msg #checking_hr,checking_sr, checking_temp, checking_al ,isRecovery #, recovery_msg
+    
     def hr_info(self):
         try:
             all_hr=list()
@@ -343,7 +399,7 @@ class sessionMath(SessionsStorage):
                 "avg": 0,
                 "min": 0
                 }
-            return self.summary_data["activity_level"]
+            return self.summary_data["signal_quality"]
         
 
         except Exception as e:
@@ -352,6 +408,37 @@ class sessionMath(SessionsStorage):
     @property
     def all_info_dict(self):
         return self.summary_data
+
+    # def recoveryTracker(self):
+    #     "this function checks for a restitution period based on the last 3 session timestamps"
+    #     " and compare it to avg, max and mid-time values"
+    #     # data=self.all_valid_record
+    #     # sorted_data=sort_dict_list(self.all_valid_record, "heart_rate")
+
+    #     checking_hr = Downward_trend(self.all_valid_record, "heart_rate")
+    #     checking_sr= Downward_trend(self.all_valid_record, "skin_response")
+    #     checking_temp= Downward_trend(self.all_valid_record, "temperature")
+    #     checking_al= Downward_trend(self.all_valid_record, "activity_level")
+
+    #     isRecovery=matching_lists(checking_hr,checking_sr, checking_temp, checking_al)
+    #     recovery_msg=[]
+    #     recovery_check=False
+    #     count=1
+    #     for count,x in enumerate(isRecovery,start=1):
+    #         if x is True:
+    #             recovery_msg.append(f"data from session {count} is  a recovery session")
+    #             recovery_check=True
+    #         elif x is False:
+    #             continue
+    #         else:
+    #             recovery_msg.append("something went wrong")
+    #     return  recovery_check, recovery_msg #checking_hr,checking_sr, checking_temp, checking_al ,isRecovery #, recovery_msg
+
+
+
+
+            
+
 
     def SessionClassification(self):
         type_data=dict()
@@ -364,11 +451,11 @@ class sessionMath(SessionsStorage):
         for x in self.summary_data:
             if x == "heart_rate":
                 hr_avg = self.summary_data[x].get("avg")
-                if hr_avg < self.participant._baseline_hr +15:
+                if hr_avg < self.participant._baseline_hr +10:
                     type_data["heart_rate"] = "resting"
-                elif hr_avg < self.participant._baseline_hr+45:
+                elif hr_avg < self.participant._baseline_hr+15:
                     type_data["heart_rate"] = "moderate activity"
-                elif self.participant._baseline_hr+45 < hr_avg < 220: # general formulas set 220 as maximum heartrate value before heart damage
+                elif  hr_avg < 220: # general formulas set 220 as maximum heartrate value before heart damage
                     type_data["heart_rate"] = "high activity"
 
                 else:
@@ -407,12 +494,18 @@ class sessionMath(SessionsStorage):
                 else:
                     type_data["activity_level"] = "inconclusive or unknown session type"
 
+        return type_data
 
+    def majority_session(self,type_data):
         values=list(type_data.values())
         #since the data_generator is based on rng and gauss distribution some values may become autliers and reult in,
         # some parameters not linight perfectly up with the others, by checking for majority/ minimum of 3 equals, 
         # I hope to mittigate this issue
-        if majority(values,"resting"):
+        if self.summary_data["heart_rate"].get("max")==0:
+            return "session type inconclusive due to missing / bad data"
+        elif self.recoveryTracker()[0]:
+            return "recovery"
+        elif majority(values,"resting"):
             return "resting"
         elif majority(values, "moderate activity"):
             return "moderate activity"
@@ -420,4 +513,4 @@ class sessionMath(SessionsStorage):
             return "high activity"
         else:
             return f"inconclusive or unknown session type, {values}"
-    
+
