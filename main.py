@@ -13,9 +13,6 @@ def majority(l1, target):
 
 
 
-
-
-
 def Downward_trend(valid_dataset, metric_key, thresheold=0.85):
 
     trend_results = []
@@ -85,6 +82,10 @@ def more_or_less(val):
     else: 
         return "ERROR"
 
+def format_text(string, value, width=55):
+    if isinstance(value, (float)):
+        value=round(value, 2)
+    return f"{string.ljust(width, ".")} {value}"
 
 #classes
 
@@ -295,7 +296,7 @@ class sessionMath(SessionsStorage):
                 self.summary_data["heart_rate"] = {
                     "reference": self.participant.Baseline_HR,
                     "max": max(all_hr),
-                    "avg": sum(all_hr) / len(all_hr),
+                    "avg": round(sum(all_hr) / len(all_hr),1),
                     "min": min(all_hr)
                 }
 
@@ -338,7 +339,7 @@ class sessionMath(SessionsStorage):
                 self.summary_data["skin_response"] = {
                     "reference": self.participant.Baseline_Skin,
                     "max": max(all_sr),
-                    "avg": sum(all_sr) / len(all_sr),
+                    "avg": round(sum(all_sr) / len(all_sr),2),
                     "min": min(all_sr)
                 }
 
@@ -382,7 +383,7 @@ class sessionMath(SessionsStorage):
                 self.summary_data["temperature"] = {
                     "reference": self.participant.Baseline_Temp,
                     "max": max(all_temp),
-                    "avg": sum(all_temp) / len(all_temp),
+                    "avg": round(sum(all_temp) / len(all_temp),1),
                     "min": min(all_temp)
                 }
 
@@ -426,7 +427,7 @@ class sessionMath(SessionsStorage):
                 self.summary_data["activity_level"] = {
                     "reference": "NA",
                     "max": max(all_al),
-                    "avg": sum(all_al) / len(all_al),
+                    "avg": round(sum(all_al) / len(all_al),2),
                     "min": min(all_al)
                 }
             else:
@@ -470,7 +471,7 @@ class sessionMath(SessionsStorage):
                 self.summary_data["signal_quality"] = {
                     "reference": "NA",
                     "max": max(all_sig),
-                    "avg": sum(all_sig) / len(all_sig),
+                    "avg": round(sum(all_sig) / len(all_sig),2),
                     "min": min(all_sig)
                 }
             else:
@@ -588,28 +589,49 @@ class sessionMath(SessionsStorage):
 
         sup_msg=suportive_messages(activety_type)
 
-        summary_lines= [f"you just finished a session of {activety_type}", 
-                        f"{sup_msg}",
-                        f"your heart rate reached {hr_data.get('max')}",
-                        f"this is {hr_data.get('max')-hr_data.get("reference")} {more_or_less(hr_data.get('max')-hr_data.get("reference"))} than your refference of {hr_data.get('reference')} BPM",
-                        "________________________________________",
-                        f"your skin response reached {sr_data.get('max')}",
-                        f"this is {sr_data.get("max")-sr_data.get('reference')} {more_or_less(sr_data.get('max')-sr_data.get("reference"))} than your refference of {sr_data.get('reference')}",
-                        "________________________________________",
+        summary_lines=[
+            f"you just finished a session of {activety_type}",
+            f"{sup_msg}",
+            "_"*70,
+            "your maximum values across the sessions were:",
+            f"{format_text("your heart rate reached", hr_data.get("max"))} BPM",
 
-                        f"your temperature reached {temp_data.get("max")}",
-                        f"this is {temp_data.get("max")-temp_data.get("reference")} {more_or_less(temp_data.get('max')-temp_data.get("reference"))} than your refference of {temp_data.get("reference")} degrees",
-                        "________________________________________",
-                        f"your activety level reached {al_data.get("max")}",
-                        f"your minimum activety level was {al_data.get("min")}, your maximum activety level was {al_data.get("max")}, this is a span of {al_data.get("max")-al_data.get("min")} across the session",
-                        "________________________________________",
-                        "your average values were as follows",
-                        f"average heart rate across the session {round(hr_data.get("avg"), 1)}",
-                        f"average skin response across the session {round(sr_data.get("avg"), 2)}",
-                        f"average temperature across the session {round(temp_data.get("avg"),2)}",
-                        f"average activety level across the session {round(al_data.get("avg"), 2)}",
-                        f"recovery period? {recovery_check}"
-                        ]
+            f"{format_text("your skin respone reached", sr_data.get("max"))}",
+
+            f"{format_text("your temperature rate reached", temp_data.get("max"))} C",
+
+            f"{format_text("your activety level reached", al_data.get("max"))}",
+            "_"*70,
+            "your average values across the sessions were:",
+            f"{format_text("your heart rate averaged", hr_data.get("avg"))} BPM",
+
+            f"{format_text("your skin respone averaged", sr_data.get("avg"))}",
+
+            f"{format_text("your temperature averaged", temp_data.get("avg"))} C",
+
+            f"{format_text("your acticity level averaged", al_data.get("avg"))}",
+            "_"*70,
+            "your minimum values across the sessions were:",
+            f"{format_text("your heart rate hit", hr_data.get("min"))} BPM",
+
+            f"{format_text("your skin respone hit", sr_data.get("min"))}",
+
+            f"{format_text("your temperature hit", temp_data.get("min"))} C",
+
+            f"{format_text("your activity level hit", al_data.get("min"))}",
+            "_"*70,
+            "your ranges were as follows",
+            f"{format_text("your heart rate spanned", (hr_data.get("max")-hr_data.get("min")))} BPM",
+
+            f"{format_text("your skin respone spanned", (sr_data.get("max")-sr_data.get("min")))}",
+
+            f"{format_text("your temperature spanned", (temp_data.get("avg")-temp_data.get("min")))} C",
+
+            f"{format_text("your acticety level spanned", (al_data.get("max")-al_data.get("min")))}",
+            "_"*60,
+            f"{format_text("recovery period?", recovery_check)}"
+
+        ]
         poor_data=["the data for this session was corrupted or not adequate for data processing",
                    "please adjust tracker"]
 
