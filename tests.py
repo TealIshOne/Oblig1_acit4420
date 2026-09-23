@@ -1,106 +1,168 @@
-
 from sample_data import resting, moderate_activity ,high_activity, recovery, poor_quality
 from main import Participant as part
 from main import Observation as obs
-from main import SessionsStorage as sest
-from main import sessionMath as sesMa
-
-test_data_set= [{'timestamp': 0, 'heart_rate': 95, 'skin_response': 2.29, 'temperature': 33.23, 'activity_level': 0.53, 'signal_quality': 0.90}, {'timestamp': 1, 'heart_rate': 93, 'skin_response': 1.97, 'temperature': 33.19, 'activity_level': 0.4, 'signal_quality': 0.86}, {'timestamp': 2, 'heart_rate': 82, 'skin_response': 1.95, 'temperature': 33.17, 'activity_level': 0.4, 'signal_quality': 0.93}, {'timestamp': 3, 'heart_rate': 88, 'skin_response': 2.18, 'temperature': 33.17, 'activity_level': 0.39, 'signal_quality': 0.97}, {'timestamp': 4, 'heart_rate': 84, 'skin_response': 2.03, 'temperature': 33.33, 'activity_level': 0.51, 'signal_quality': 0.93}, {'timestamp': 5, 'heart_rate': 81, 'skin_response': 2.14, 'temperature': 33.32, 'activity_level': 0.45, 'signal_quality': 0.91}, {'timestamp': 6, 'heart_rate': 89, 'skin_response': 2.17, 'temperature': 33.34, 'activity_level': 0.6, 'signal_quality': 0.98}, {'timestamp': 7, 'heart_rate': 102, 'skin_response': 2.22, 'temperature': 33.37, 'activity_level': 0.41, 'signal_quality': 0.95}, {'timestamp': 8, 'heart_rate': 90, 'skin_response': 2.04, 'temperature': 33.11, 'activity_level': 0.48, 'signal_quality': 0.88}, {'timestamp': 9, 'heart_rate': 91, 'skin_response': 2.29, 'temperature': 33.2, 'activity_level': 0.52, 'signal_quality': 0.98}, {'timestamp': 10, 'heart_rate': 90, 'skin_response': 2.14, 'temperature': 33.25, 'activity_level': 0.45, 'signal_quality': 0.9}, {'timestamp': 11, 'heart_rate': 87, 'skin_response': 2.16, 'temperature': 33.19, 'activity_level': 0.6, 'signal_quality': 0.85}]
+from main import SessionsStorage as sesSt
+from main import sessionMath as sesMat
 
 
+def testing_individual_classes():
+    print("="*65)
+    print(" "*20,"TESTING INDIVIDUAL CLASSES")
+    print("="*65)
 
-#profile, data=resting()
-profile, data=moderate_activity()
-#profile, data=high_activity()
-#profile, data=poor_quality()
-#profile, data=recovery()
+    # test class1: Participant
+    profile, data =resting()
+    p=part.instanciate_profile(profile)
+    print(f"[Participant] ID: {p.ID:<5} | HR: {p.Baseline_HR:<5} | Skin: {p.Baseline_Skin:<5} | Temp: {p.Baseline_Temp:<5}")
 
-L=[1,2,3,4]
-print("-------------test participant class------------------")
-# test1=part(profile)
-# test1.SetProfileData()
-# print("personal ID:",test1.ID)
-# print("Baseline Heart Rate:", test1.Baseline_HR)
-# print("Baseline Skin Response:", test1.Baseline_Skin)
-# print("Baseline Temperature:", test1.Baseline_Temp)
+    #test Class 2: Observation
+    o=obs(data)
+    invalid,valid = o.isValid()
+    print(f"[Observation] Valid entries: {len(valid)} | Invalid entries: {len(invalid):<25}")
+    print(f"[Observation] ValidType check passed: {o.ValidateType():<5}")
 
+    # test Class 3: SessionStorage
+    storage=sesSt(data, data, data)
+    inv_rec, val_rec=storage.ValidateAll()
+    print(f"[SessionStorage] sessions processed. valid sessions {len(val_rec)} | invalid sessions {len(inv_rec)}")
 
-print("-------------test Observation class------------------")
-test2=obs(data)
-#test2=obs()
-#test2=obs(test_data_set)
-print("*isValid*")
-invalid, valid= test2.isValid()
-# print(invalid)
-# print()
-# print(valid)
-print("*ValidValues*")
-#print(test2.ValidValues)
-print("*ValidDataContainerAllocation*")
-hr, sr, temp, al, sig = test2.ValidDataContainerAllocation()
-# print(hr)
-# print(sr)
-# print(temp)
-# print(al)
-# print(sig)
-print("*ValidateType*")
-ValidateType=test2.ValidateType()
-#print(ValidateType) #true/false --> test with test_data
+    print("-"*23,"end of base tests", "-"*23)
 
-profile1, data1=resting()
-profile2, data2=moderate_activity()
-profile3, data3=high_activity()
-profile4, data4=poor_quality()
-profile5, data5=recovery()
+def run_scenarios(scenario_name, session_type_func):
+    print("="*65)
+    print(" "*20,f"SCENARIO: {scenario_name.upper()}")
+    print("="*65)
 
-print("-------------test Sessions class------------------")
-test3=sest(data2,data2,data3,data3)
-x,y= test3.ValidateAll()
-# print(x)
-# print("*******************************")
-# print(y)
+    profile, data=session_type_func()
 
+    #creates session math processor using multiple sessions ( from same instansiation) to simulate multiple activety sessions
+    session =sesMat(profile, data, data, data)
+    session.ValidateAll()
 
-print("-------------test SessionsMath class------------------")
-# test4=sesMa(profile1, data1,data1,data1,data1)
-# test4=sesMa(profile1, data2,data2,data2,data2)
-# test4=sesMa(profile1, data3,data3,data3,data3)
-# test4=sesMa(profile1, data4,data4,data4,data4)
-# test4=sesMa(profile1, data5,data5,data5,data5)
-test4=sesMa(profile1, data4,data5,data3,data3)
+    #track recovrey and metric data
+    rec_trac, rec_trac_msg=session.recoveryTracker()
+    hr_i=session.hr_info(rec_trac_msg)
+    sr_i=session.sr_info(rec_trac_msg)
+    temp_i=session.temp_info(rec_trac_msg)
+    al_i=session.al_info(rec_trac_msg)
+    sig_i=session.signal_info(rec_trac_msg)
 
-print("*recoveryTracker*")
-rec_trac, rec_trac_msg=test4.recoveryTracker()
-# print(rec_trac)
-# print(rec_trac_msg)
+    # classify session as activety type, and find mean activety type
+    classification =session.SessionClassification()
+    majority_result=session.majority_session(classification, rec_trac)
 
-print("*print info *")
-hr_i=test4.hr_info(rec_trac_msg)
-sr_i=test4.sr_info(rec_trac_msg)
-temp_i=test4.temp_info(rec_trac_msg)
-al_i=test4.al_info(rec_trac_msg)
-sig_i=test4.signal_info(rec_trac_msg)
-
-# print("hr",hr_i)
-print("sr",sr_i)
-# print("temp",temp_i)
-# print("al", al_i)
-# print("sig", sig_i)
-
-print("*print all data*")
-# print(test4.all_info_dict)
+    formated_log=session.SessionLogPrint(
+        hr_i, sr_i, temp_i, al_i, majority_result, rec_trac
+    )
+    if isinstance(formated_log,list):
+        print(*formated_log, sep='\n', end="\n")
+    else:
+        print("printing data summary failed") 
 
 
-print("*classify*")
-classify_s=test4.SessionClassification()
-# print(classify_s)
+    info_dict=session.data_dict(hr_i, sr_i, temp_i, al_i, majority_result, rec_trac)
+    print(info_dict)
+    print("\n")  
 
-print("*majority*")
-maj=test4.majority_session(classify_s)
-# print(maj)
-print("**********print job*********")
-obj=test4.SessionLog(hr_i,sr_i,temp_i,al_i, maj, rec_trac)
-if isinstance(obj,list):
-    print(*obj, sep='\n', end="\n")
-else:
-    print("printing data summary failed")
+def analyze_and_print_mixed(case_title, profile, *session_datasets):
+    """
+    Helper function to process and print any combination of datasets.
+    """
+    print(f"\n--- {case_title} ---")
+    
+    # 1. Instantiate & Validate
+    session = sesMat(profile, *session_datasets)
+    session.ValidateAll()
+
+    # 2. Extract metrics
+    rec_trac, rec_trac_msg = session.recoveryTracker()
+    hr_i = session.hr_info(rec_trac_msg)
+    sr_i = session.sr_info(rec_trac_msg)
+    temp_i = session.temp_info(rec_trac_msg)
+    al_i = session.al_info(rec_trac_msg)
+
+    # 3. Classify
+    classification = session.SessionClassification()
+    majority_result = session.majority_session(classification, is_recovery=rec_trac)
+    print(f"Result: Classified as '{majority_result}' | Recovery detected: {rec_trac}")
+
+    # 4. Print Log Report
+    formatted_log = session.SessionLogPrint(
+        hr_i, sr_i, temp_i, al_i, majority_result, rec_trac
+    )
+    if isinstance(formatted_log, list):
+        print(*formatted_log, sep="\n", end="\n")
+    else:
+        print("printing data summary failed")
+
+    # 5. Print data dictionary
+    info_dict = session.data_dict(
+        hr_data=hr_i,
+        sr_data=sr_i,
+        temp_data=temp_i,
+        al_data=al_i,
+        activety_type=majority_result,
+        recover_status=rec_trac,
+    )
+    print("\n[Structured Dictionary Output]:")
+    print(info_dict) 
+
+def mixed_sessions():
+    """
+    testing preset mixed session datasets
+    """
+    print("="*65)
+    print(" "*20,f"TESTING MIXED SIGNALS")
+    print("="*65)
+
+    profile, res_data = resting()
+    _, high_data = high_activity()
+    _, rec_data = recovery()
+    _, mod_data = moderate_activity()
+    _, poor_data = poor_quality()
+
+    # Case 1: Resting + High --> Averages out to moderate activety across the data session)
+    analyze_and_print_mixed(
+        "Case 1: Resting (x2) + High Activity (x2)",
+        profile, res_data, res_data, high_data, high_data
+    )
+
+    # Case 2: Resting + Recovery + Resting + High --> will return moderate as the average values of 
+    # rest+rest+high returns moderate over the multiple sesions
+    analyze_and_print_mixed(
+        "Case 2: Resting + Recovery + Resting + High Activity",
+        profile, res_data, rec_data, res_data, high_data
+    )
+
+    # Case 3: Faulty / Corrupt Dataset --> will return moderate activety as activety 
+    # type as poor quality will be rejected in the dataset
+    analyze_and_print_mixed(
+        "Case 3: Moderate Activity + Poor Quality Data",
+        profile, mod_data, poor_data
+    )
+
+    
+
+
+"""
+INSTANTIATION OF THE TEST CODE
+"""
+if __name__ == "__main__":
+    testing_individual_classes()
+
+    scenarios=[
+        ("Resting Session", resting),
+        ("Moderate Activity", moderate_activity),
+        ("High Activity", high_activity),
+        ("Recovery Session", recovery),
+        ("Poor Quality / Invalid Data", poor_quality),
+    ]
+
+    print("="*65)
+    print(" "*20,f"RUNNING 5 REQUIRED SCENARIOS")
+    print("="*65)
+
+    for name, func in scenarios:
+        run_scenarios(name, func)
+
+    mixed_sessions()

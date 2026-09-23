@@ -12,7 +12,6 @@ def majority(l1, target):
         return False
 
 
-
 def Downward_trend(valid_dataset, metric_key, thresheold=0.85):
 
     trend_results = []
@@ -44,6 +43,7 @@ def Downward_trend(valid_dataset, metric_key, thresheold=0.85):
 
     return trend_results
 
+
 def matching_lists(*truthy_lists):
 
  #   return [all(element == items[0] for element in items) for items in zip(*truthy_lists)]
@@ -74,18 +74,9 @@ def suportive_messages(assign1):
     else:
         return "hello, your activety class has eluded me"
 
-def more_or_less(val):
-    if val < 1:
-        return "less"
-    elif val> 1:
-        return "more"
-    else: 
-        return "ERROR"
 
-def format_text(string, value, width=55):
-    if isinstance(value, (float)):
-        value=round(value, 2)
-    return f"{string.ljust(width, ".")} {value}"
+
+
 
 #classes
 
@@ -101,19 +92,17 @@ class Participant:
         self._baseline_hr = None
         self._baseline_skin = None
         self._baseline_temp = None
+
+        if isinstance(self.personal_data,dict):
+            self._participant_id = self.personal_data.get("participant_id")
+            self._baseline_hr = self.personal_data.get("baseline_heart_rate")
+            self._baseline_skin = self.personal_data.get("baseline_skin_response")
+            self._baseline_temp = self.personal_data.get("baseline_temperature")
+    @classmethod
+    def instanciate_profile(cls, profile_dict):
+        return cls(profile_dict)
     
-#            baseline_data = ["baseline_heart_rate", "baseline_skin_response", "baseline_temperature"]
-    def SetProfileData(self):
-            try:
-                if isinstance(self.personal_data,dict):
-                    self._participant_id = self.personal_data.get("participant_id")
-                    self._baseline_hr = self.personal_data.get("baseline_heart_rate")
-                    self._baseline_skin = self.personal_data.get("baseline_skin_response")
-                    self._baseline_temp = self.personal_data.get("baseline_temperature")
-                else:
-                    print( "your personal data is not formated correctly")
-            except:
-                return "something went wrong in Participant, SetProfileData (line 23)"
+
     @property
     def ID(self):
         return self._participant_id
@@ -167,18 +156,22 @@ class Observation:
                         else:
                             self.Valid.append(x)
                     else:
-                        return " the contnet of your raw_data list is not dictionaries (line 71)", " the contnet of your raw_data list is not dictionaries (line 71)"
+                        return " the content of your raw_data list is not dictionaries (line 145)", " the content of your raw_data list is not dictionaries (line 145)"
             else:
-                return "the raw data you provided is not formated correctly (line 69)", "the raw data you provided is not formated correctly (line 69)"
+                return "the raw data you provided is not formated correctly (line 145)", "the raw data you provided is not formated correctly (line 145)"
             return self.inValid, self.Valid
         
-        except:
-            return "something went wrong in Observation, isValid (line 64)"
+        except Exception as e:
+            return "something went wrong in Observation, isValid (line 155)", str(e)
 
 
     @property
     def ValidValues(self):
         return self.Valid
+
+    @property
+    def InValidCount(self):
+        return len(self.inValid)
 
 
     def ValidDataContainerAllocation(self):
@@ -192,8 +185,8 @@ class Observation:
                 return self.heart_rate, self.skin_response, self.temperature, self.activity_level, self.signal_quality
             else:
                 return "the data container is empty","the data container is empty", "the data container is empty","the data container is empty","the data container is empty"
-        except:
-            return "something went wrong on Observation, ValidDataContainerAllocation (line 98)"
+        except Exception as e:
+            return "something went wrong on Observation, ValidDataContainerAllocation (line 177)", str(e)
   
     def ValidateType(self):
             try:
@@ -207,8 +200,10 @@ class Observation:
                     return True #, [_check_heart,_check_skin,_check_temp,_check_activity,_check_signal],[self.heart_rate, self.skin_response, self.temperature, self.activity_level, self.signal_quality]
                 else:
                     return False #, [_check_heart,_check_skin,_check_temp,_check_activity,_check_signal], [self.heart_rate, self.skin_response, self.temperature, self.activity_level, self.signal_quality]
-            except:
-                return "something went wrong on Observation, ValidateType (line 116)"
+            except Exception as e:
+                return "something went wrong on Observation, ValidateType (line 201)", str(e)
+
+
 
 class SessionsStorage:
     def __init__(self, *raw_datasets: list):
@@ -236,14 +231,28 @@ class SessionsStorage:
 
 class sessionMath(SessionsStorage):
     def __init__(self, profile_data=None, *raw_datasets):
-        SessionsStorage.__init__(self, *raw_datasets)
-        self.participant = Participant(profile_data)
-        self.participant.SetProfileData()
+        super().__init__(*raw_datasets)
+        self.participant = Participant.instanciate_profile(profile_data)
+#        self.participant.SetProfileData()
         self.summary_data = dict()
         
-        self.ValidateAll()
+        # self.inv,self.v=self.ValidateAll()
+        self.invalid_records= None
+        self.valid_records = None
+        self.total_unusable_observations=None
+        self.total_usable_observations=None
 
-        self.all_hr=list()
+        # self.all_hr=list()
+
+    @staticmethod
+    def format_text(string, value, width=55):
+        if isinstance(value, (float)):
+            value=round(value, 2)
+        return f"{string.ljust(width, ".")} {value}"
+
+
+
+
     def recoveryTracker(self):
         "this function checks for a restitution period based on the last 3 session timestamps"
         " and compare it to avg, max and mid-time values"
@@ -268,6 +277,17 @@ class sessionMath(SessionsStorage):
             else:
                 recovery_msg.append("something went wrong")
         return  recovery_check, recovery_msg #checking_hr,checking_sr, checking_temp, checking_al ,isRecovery #, recovery_msg
+
+    def ValidateAll(self):
+        # Call parent's ValidateAll method first
+        self.invalid_records, self.valid_records = super().ValidateAll()
+
+        # 2. Add child-specific tracking logic (usable vs unusable count summary)
+        self.total_usable_observations = sum(len(session) for session in self.valid_records)
+        self.total_unusable_observations = sum(len(session) for session in self.invalid_records)
+        
+        return self.invalid_records, self.valid_records 
+
     
     def hr_info(self, recovery_msg=None):
         try:
@@ -286,9 +306,14 @@ class sessionMath(SessionsStorage):
                     if idx not in recovery_idx:
                         filtered_data.append(data)
                 data_capsule=filtered_data
-
-
             all_hr=list()
+             ###############################3   
+            if not all_hr and self.raw:
+                for values in self.raw:
+                    if values.heart_rate and isinstance(values.heart_rate, list):
+                         all_hr.extend(values.heart_rate)
+            ##############################################3
+
             for values in data_capsule:
                 if values.heart_rate and isinstance(values.heart_rate,list):
                     all_hr.extend(values.heart_rate)
@@ -311,7 +336,7 @@ class sessionMath(SessionsStorage):
                 return "something went wrong(line183)"
             return self.summary_data["heart_rate"]
         except Exception as e:
-            return f"something went wrong in sessionMath, hr_info: {type(e).__name__} - {e}"
+            return f"something went wrong in sessionMath, hr_info (line 292)", str(e)
 
 
     def sr_info(self,recovery_msg=None):
@@ -330,8 +355,15 @@ class sessionMath(SessionsStorage):
                     if idx not in recovery_idx:
                         filtered_data.append(data)
                 data_capsule=filtered_data  
-
             all_sr=list()
+
+             ###############################3   
+            if not all_sr and self.raw:
+                for values in self.raw:
+                    if values.skin_response and isinstance(values.skin_response, list):
+                         all_sr.extend(values.skin_response)
+            ##############################################3
+
             for values in data_capsule:
                 if values.skin_response and isinstance(values.skin_response,list):
                     all_sr.extend(values.skin_response)
@@ -354,7 +386,7 @@ class sessionMath(SessionsStorage):
                 return "something went wrong(line183)"
             return self.summary_data["skin_response"]
         except Exception as e:
-            return f"something went wrong in sessionMath, sr_info: {type(e).__name__} - {e}"
+            return f"something went wrong in sessionMath, sr_info (line 342)", str(e)
 
 
     def temp_info(self,recovery_msg=None):
@@ -374,8 +406,16 @@ class sessionMath(SessionsStorage):
                     if idx not in recovery_idx:
                         filtered_data.append(data)
                 data_capsule=filtered_data
-            
             all_temp=list()
+
+             ###############################3   
+            if not all_temp and self.raw:
+                for values in self.raw:
+                    if values.temperature and isinstance(values.temperature, list):
+                         all_temp.extend(values.temperature)
+            ##############################################3
+
+            
             for values in data_capsule:
                 if values.temperature and isinstance(values.temperature,list):
                     all_temp.extend(values.temperature)
@@ -398,7 +438,7 @@ class sessionMath(SessionsStorage):
                 return "something went wrong(line183)"
             return self.summary_data["temperature"]
         except Exception as e:
-            return f"something went wrong in sessionMath, temp_info: {type(e).__name__} - {e}"
+            return f"something went wrong in sessionMath, temp_info (line 392)", str(e)
 
 
     def al_info(self, recovery_msg=None):
@@ -420,6 +460,14 @@ class sessionMath(SessionsStorage):
                 data_capsule=filtered_data
             
             all_al=list()
+
+             ###############################3   
+            if not all_al and self.raw:
+                for values in self.raw:
+                    if values.activity_level and isinstance(values.activity_level, list):
+                         all_al.extend(values.activity_level)
+            ##############################################3
+
             for values in data_capsule:
                 if values.activity_level and isinstance(values.activity_level,list):
                     all_al.extend(values.activity_level)
@@ -441,7 +489,7 @@ class sessionMath(SessionsStorage):
         
 
         except Exception as e:
-            return f"something went wrong in sessionMath, al_info: {type(e).__name__} - {e}"
+            return f"something went wrong in sessionMath, al_info (line 444)", str(e)
   
 
     def signal_info(self, recovery_msg=None):
@@ -485,7 +533,7 @@ class sessionMath(SessionsStorage):
         
 
         except Exception as e:
-            return f"something went wrong in sessionMath, temp_info: {type(e).__name__} - {e}"
+            return f"something went wrong in sessionMath, temp_info (line 495)", str(e)
 
     @property
     def all_info_dict(self):
@@ -499,6 +547,7 @@ class sessionMath(SessionsStorage):
         self.sr_info(rec_trac_msg)
         self.temp_info(rec_trac_msg)
         self.al_info(rec_trac_msg)
+        
 
         for x in self.summary_data:
             if x == "heart_rate":
@@ -556,25 +605,27 @@ class sessionMath(SessionsStorage):
 
         return type_data
 
-    def majority_session(self,type_data):
+    def majority_session(self,type_data, is_recovery=False):
         values=list(type_data.values())
         #since the data_generator is based on rng and gauss distribution some values may become autliers and reult in,
         # some parameters not linight perfectly up with the others, by checking for majority/ minimum of 3 equals, 
         # I hope to mittigate this issue
         if self.summary_data["heart_rate"].get("max")==0:
             return "session type inconclusive due to missing / bad data"
-        elif majority(values,"---"):
-            return "recovery"
-        elif majority(values,"resting"):
+
+
+        if majority(values,"resting"):
             return "resting"
         elif majority(values, "moderate activity"):
             return "moderate activity"
         elif majority(values, "high activity"):
             return "high activity"
+        elif is_recovery or self.majority_session("---"):
+            return "recovery"
         else:
             return f"inconclusive or unknown session type, {values}"
 
-    def SessionLog(self,hr_data=None, sr_data=None, temp_data=None, al_data=None, activety_type=None, recover_status=None):
+    def SessionLogPrint(self,hr_data=None, sr_data=None, temp_data=None, al_data=None, activety_type=None, recover_status=None):
         "this function presents the calculated datas, and returns an ecouraging message"
 
         data_list=[hr_data,sr_data,temp_data, al_data]
@@ -586,50 +637,55 @@ class sessionMath(SessionsStorage):
             recovery_check = "No"
         else:
             recovery_check="something went wrong (line 484)"
-
+  
         sup_msg=suportive_messages(activety_type)
 
         summary_lines=[
+            "_"*75,
             f"you just finished a session of {activety_type}",
             f"{sup_msg}",
-            "_"*70,
+            "_"*65,
             "your maximum values across the sessions were:",
-            f"{format_text("your heart rate reached", hr_data.get("max"))} BPM",
+            f"{self.format_text("your heart rate reached", hr_data.get('max'))} BPM",
 
-            f"{format_text("your skin respone reached", sr_data.get("max"))}",
+            f"{self.format_text("your skin respone reached", sr_data.get('max'))}",
 
-            f"{format_text("your temperature rate reached", temp_data.get("max"))} C",
+            f"{self.format_text("your temperature rate reached", temp_data.get('max'))} C",
 
-            f"{format_text("your activety level reached", al_data.get("max"))}",
-            "_"*70,
+            f"{self.format_text("your activety level reached", al_data.get('max'))}",
+            "_"*65,
             "your average values across the sessions were:",
-            f"{format_text("your heart rate averaged", hr_data.get("avg"))} BPM",
+            f"{self.format_text("your heart rate averaged", hr_data.get('avg'))} BPM",
 
-            f"{format_text("your skin respone averaged", sr_data.get("avg"))}",
+            f"{self.format_text("your skin respone averaged", sr_data.get('avg'))}",
 
-            f"{format_text("your temperature averaged", temp_data.get("avg"))} C",
+            f"{self.format_text("your temperature averaged", temp_data.get('avg'))} C",
 
-            f"{format_text("your acticity level averaged", al_data.get("avg"))}",
-            "_"*70,
+            f"{self.format_text("your acticity level averaged", al_data.get('avg'))}",
+            "_"*65,
             "your minimum values across the sessions were:",
-            f"{format_text("your heart rate hit", hr_data.get("min"))} BPM",
+            f"{self.format_text("your heart rate hit", hr_data.get('min'))} BPM",
 
-            f"{format_text("your skin respone hit", sr_data.get("min"))}",
+            f"{self.format_text("your skin respone hit", sr_data.get('min'))}",
 
-            f"{format_text("your temperature hit", temp_data.get("min"))} C",
+            f"{self.format_text("your temperature hit", temp_data.get('min'))} C",
 
-            f"{format_text("your activity level hit", al_data.get("min"))}",
-            "_"*70,
+            f"{self.format_text("your activity level hit", al_data.get('min'))}",
+            "_"*65,
             "your ranges were as follows",
-            f"{format_text("your heart rate spanned", (hr_data.get("max")-hr_data.get("min")))} BPM",
+            f"{self.format_text("your heart rate spanned", (hr_data.get('max')-hr_data.get('min')))} BPM",
 
-            f"{format_text("your skin respone spanned", (sr_data.get("max")-sr_data.get("min")))}",
+            f"{self.format_text("your skin respone spanned", (sr_data.get("max")-sr_data.get('min')))}",
 
-            f"{format_text("your temperature spanned", (temp_data.get("avg")-temp_data.get("min")))} C",
+            f"{self.format_text("your temperature spanned", (temp_data.get("avg")-temp_data.get('min')))} C",
 
-            f"{format_text("your acticety level spanned", (al_data.get("max")-al_data.get("min")))}",
-            "_"*60,
-            f"{format_text("recovery period?", recovery_check)}"
+            f"{self.format_text("your acticety level spanned", (al_data.get("max")-al_data.get('min')))}",
+            "_"*65,
+            f"{self.format_text("recovery period?", recovery_check)}",
+            f"{self.format_text("invalid data count?", self.total_unusable_observations)}",
+            f"{self.format_text("valid data count?", self.total_usable_observations)}",
+            "_"*75
+
 
         ]
         poor_data=["the data for this session was corrupted or not adequate for data processing",
@@ -648,5 +704,18 @@ class sessionMath(SessionsStorage):
             else:
                 return ["something went wrong(line 451)",""]
 
-        except:
-            return ["something went wrong(line 451)",""]
+        except Exception as e:
+            return ["something went wrong(line 451)",""], str(e)
+
+
+    def data_dict(self,hr_data=None, sr_data=None, temp_data=None, al_data=None, activety_type=None, recover_status=None):
+        return {"HEARTRATE":hr_data, 
+                "SKINRESPONSE": sr_data, 
+                "TEMPERATURE": temp_data, 
+                "ACTIVITY": al_data, 
+                "RECOVERY": recover_status,
+                "ACTIVETY TYPE": activety_type,
+                "DATASET w/INVALID DATA": len(self.invalid_records),
+                "DATASET w/VALID DATA" : len(self.valid_records), 
+                "INVALIDCOUNT": self.total_unusable_observations, 
+                "VALIDCOUNT": self.total_usable_observations}

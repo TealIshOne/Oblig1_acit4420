@@ -2,10 +2,10 @@
 
 #testing observations
 
-from main_second_try import Observations as obs
-from main_second_try import Participant as part
-from main_second_try import Session as ses
-from main_second_try import Analyzer as ana
+from temp_codes.main_second_try import Observations as obs
+from temp_codes.main_second_try import Participant as part
+from temp_codes.main_second_try import Session as ses
+from temp_codes.main_second_try import Analyzer as ana
 from sample_data import resting, moderate_activity ,high_activity, recovery, poor_quality
 
 
