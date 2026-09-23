@@ -260,7 +260,7 @@ class sessionMath(SessionsStorage):
         count=1
         for count,x in enumerate(isRecovery,start=1):
             if x is True:
-                recovery_msg.append(f"data from session {count} is  a recovery session")
+                recovery_msg.append((f"data from session {count} is  a recovery session",count))
                 recovery_check=True
             elif x is False:
                 continue
@@ -268,10 +268,27 @@ class sessionMath(SessionsStorage):
                 recovery_msg.append("something went wrong")
         return  recovery_check, recovery_msg #checking_hr,checking_sr, checking_temp, checking_al ,isRecovery #, recovery_msg
     
-    def hr_info(self):
+    def hr_info(self, recovery_msg=None):
         try:
+            data_capsule=list(self.raw)
+
+            #step 1 in filtering out recovery data as it polutes maximum, and average readings
+            recovery_idx=list()
+            if recovery_msg is not None:
+                for msg in recovery_msg:
+                    if isinstance(msg,tuple):
+                        recovery_idx.append(msg[1]-1)
+
+
+                filtered_data=list()
+                for idx, data in enumerate(data_capsule):
+                    if idx not in recovery_idx:
+                        filtered_data.append(data)
+                data_capsule=filtered_data
+
+
             all_hr=list()
-            for values in self.raw:
+            for values in data_capsule:
                 if values.heart_rate and isinstance(values.heart_rate,list):
                     all_hr.extend(values.heart_rate)
             if all_hr:
@@ -296,10 +313,25 @@ class sessionMath(SessionsStorage):
             return f"something went wrong in sessionMath, hr_info: {type(e).__name__} - {e}"
 
 
-    def sr_info(self):
+    def sr_info(self,recovery_msg=None):
         try:
+            data_capsule=list(self.raw)
+            #step 1 in filtering out recovery data as it polutes maximum, and average readings
+            recovery_idx=list()
+            if recovery_msg is not None:
+                for msg in recovery_msg:
+                    if isinstance(msg,tuple):
+                        recovery_idx.append(msg[1]-1)
+
+
+                filtered_data=list()
+                for idx, data in enumerate(data_capsule):
+                    if idx not in recovery_idx:
+                        filtered_data.append(data)
+                data_capsule=filtered_data  
+
             all_sr=list()
-            for values in self.raw:
+            for values in data_capsule:
                 if values.skin_response and isinstance(values.skin_response,list):
                     all_sr.extend(values.skin_response)
             if all_sr:
@@ -324,10 +356,26 @@ class sessionMath(SessionsStorage):
             return f"something went wrong in sessionMath, sr_info: {type(e).__name__} - {e}"
 
 
-    def temp_info(self):
+    def temp_info(self,recovery_msg=None):
         try:
+            data_capsule=list(self.raw)
+
+            #step 1 in filtering out recovery data as it polutes maximum, and average readings
+            recovery_idx=list()
+            if recovery_msg is not None:
+                for msg in recovery_msg:
+                    if isinstance(msg,tuple):
+                        recovery_idx.append(msg[1]-1)
+
+
+                filtered_data=list()
+                for idx, data in enumerate(data_capsule):
+                    if idx not in recovery_idx:
+                        filtered_data.append(data)
+                data_capsule=filtered_data
+            
             all_temp=list()
-            for values in self.raw:
+            for values in data_capsule:
                 if values.temperature and isinstance(values.temperature,list):
                     all_temp.extend(values.temperature)
             if all_temp:
@@ -352,10 +400,26 @@ class sessionMath(SessionsStorage):
             return f"something went wrong in sessionMath, temp_info: {type(e).__name__} - {e}"
 
 
-    def al_info(self):
+    def al_info(self, recovery_msg=None):
         try:
+            data_capsule=list(self.raw)
+
+            #step 1 in filtering out recovery data as it polutes maximum, and average readings
+            recovery_idx=list()
+            if recovery_msg is not None:
+                for msg in recovery_msg:
+                    if isinstance(msg,tuple):
+                        recovery_idx.append(msg[1]-1)
+
+
+                filtered_data=list()
+                for idx, data in enumerate(data_capsule):
+                    if idx not in recovery_idx:
+                        filtered_data.append(data)
+                data_capsule=filtered_data
+            
             all_al=list()
-            for values in self.raw:
+            for values in data_capsule:
                 if values.activity_level and isinstance(values.activity_level,list):
                     all_al.extend(values.activity_level)
             if all_al:
@@ -379,10 +443,27 @@ class sessionMath(SessionsStorage):
             return f"something went wrong in sessionMath, al_info: {type(e).__name__} - {e}"
   
 
-    def signal_info(self):
+    def signal_info(self, recovery_msg=None):
         try:
+
+            data_capsule=list(self.raw)
+
+            #step 1 in filtering out recovery data as it polutes maximum, and average readings
+            recovery_idx=list()
+            if recovery_msg is not None:
+                for msg in recovery_msg:
+                    if isinstance(msg,tuple):
+                        recovery_idx.append(msg[1]-1)
+
+
+                filtered_data=list()
+                for idx, data in enumerate(data_capsule):
+                    if idx not in recovery_idx:
+                        filtered_data.append(data)
+                data_capsule=filtered_data
+
             all_sig=list()
-            for values in self.raw:
+            for values in data_capsule:
                 if values.signal_quality and isinstance(values.signal_quality,list):
                     all_sig.extend(values.signal_quality)
             if all_sig:
@@ -409,51 +490,23 @@ class sessionMath(SessionsStorage):
     def all_info_dict(self):
         return self.summary_data
 
-    # def recoveryTracker(self):
-    #     "this function checks for a restitution period based on the last 3 session timestamps"
-    #     " and compare it to avg, max and mid-time values"
-    #     # data=self.all_valid_record
-    #     # sorted_data=sort_dict_list(self.all_valid_record, "heart_rate")
-
-    #     checking_hr = Downward_trend(self.all_valid_record, "heart_rate")
-    #     checking_sr= Downward_trend(self.all_valid_record, "skin_response")
-    #     checking_temp= Downward_trend(self.all_valid_record, "temperature")
-    #     checking_al= Downward_trend(self.all_valid_record, "activity_level")
-
-    #     isRecovery=matching_lists(checking_hr,checking_sr, checking_temp, checking_al)
-    #     recovery_msg=[]
-    #     recovery_check=False
-    #     count=1
-    #     for count,x in enumerate(isRecovery,start=1):
-    #         if x is True:
-    #             recovery_msg.append(f"data from session {count} is  a recovery session")
-    #             recovery_check=True
-    #         elif x is False:
-    #             continue
-    #         else:
-    #             recovery_msg.append("something went wrong")
-    #     return  recovery_check, recovery_msg #checking_hr,checking_sr, checking_temp, checking_al ,isRecovery #, recovery_msg
-
-
-
-
-            
-
 
     def SessionClassification(self):
         type_data=dict()
-        
-        self.hr_info()
-        self.sr_info()
-        self.temp_info()
-        self.al_info()
+        rec_trac, rec_trac_msg= self.recoveryTracker()
+        self.hr_info(rec_trac_msg)
+        self.sr_info(rec_trac_msg)
+        self.temp_info(rec_trac_msg)
+        self.al_info(rec_trac_msg)
 
         for x in self.summary_data:
             if x == "heart_rate":
                 hr_avg = self.summary_data[x].get("avg")
-                if hr_avg < self.participant._baseline_hr +10:
+                if hr_avg == 0:
+                    type_data["heart_rate"] = "---"
+                elif 0 < hr_avg < self.participant._baseline_hr +10:
                     type_data["heart_rate"] = "resting"
-                elif hr_avg < self.participant._baseline_hr+15:
+                elif hr_avg < self.participant._baseline_hr+25:
                     type_data["heart_rate"] = "moderate activity"
                 elif  hr_avg < 220: # general formulas set 220 as maximum heartrate value before heart damage
                     type_data["heart_rate"] = "high activity"
@@ -463,20 +516,24 @@ class sessionMath(SessionsStorage):
 
             elif x == "skin_response":
                 sr_avg = self.summary_data[x].get("avg")
-                if sr_avg < self.participant._baseline_skin + 0.30:
+                if sr_avg == 0:
+                    type_data["skin_response"] = "---"
+                elif 0 < sr_avg < self.participant._baseline_skin + 0.30:
                     type_data["skin_response"] = "resting"
                 elif sr_avg < self.participant._baseline_skin + 0.55:
                     type_data["skin_response"] = "moderate activity"
-                elif self.participant._baseline_skin + 0.55 < sr_avg <100: # 100 is an arbitrary estimated value
+                elif self.participant._baseline_skin + 0.55 < sr_avg <5: # 5 is an arbitrary estimated value
                     type_data["skin_response"] = "high activity"
                 else:
                     type_data["skin_response"] = "inconclusive or unknown session type"
 
             elif x == "temperature":
                 temp_avg = self.summary_data[x].get("avg")
-                if temp_avg < self.participant._baseline_temp + 0.30:
+                if temp_avg == 0:
+                    type_data["temperature"] = "---"
+                elif 0 < temp_avg < self.participant._baseline_temp + 0.1:
                     type_data["temperature"] = "resting"
-                elif temp_avg < self.participant._baseline_temp + 0.55:
+                elif temp_avg < self.participant._baseline_temp + 0.30:
                     type_data["temperature"] = "moderate activity"
                 elif temp_avg < 42: # 42 is the temeperature human protein denaturates and is therefore set as max value
                     type_data["temperature"] = "high activity"
@@ -485,7 +542,9 @@ class sessionMath(SessionsStorage):
 
             elif x == "activity_level": #bsolute values, no scaling changes needed
                 al_avg = self.summary_data[x].get("avg")
-                if al_avg <= 0.25:
+                if al_avg == 0:
+                    type_data["activity_level"] = "---"
+                elif 0 < al_avg <= 0.25:
                     type_data["activity_level"] = "resting"
                 elif al_avg <= 0.67:
                     type_data["activity_level"] = "moderate activity"
@@ -503,7 +562,7 @@ class sessionMath(SessionsStorage):
         # I hope to mittigate this issue
         if self.summary_data["heart_rate"].get("max")==0:
             return "session type inconclusive due to missing / bad data"
-        elif self.recoveryTracker()[0]:
+        elif majority(values,"---"):
             return "recovery"
         elif majority(values,"resting"):
             return "resting"
@@ -514,3 +573,58 @@ class sessionMath(SessionsStorage):
         else:
             return f"inconclusive or unknown session type, {values}"
 
+    def SessionLog(self,hr_data=None, sr_data=None, temp_data=None, al_data=None, activety_type=None, recover_status=None):
+        "this function presents the calculated datas, and returns an ecouraging message"
+
+        data_list=[hr_data,sr_data,temp_data, al_data]
+        if recover_status:
+            recovery_check="yes"
+        elif recover_status == None:
+            recovery_check= None
+        elif not recover_status:
+            recovery_check = "No"
+        else:
+            recovery_check="something went wrong (line 484)"
+
+        sup_msg=suportive_messages(activety_type)
+
+        summary_lines= [f"you just finished a session of {activety_type}", 
+                        f"{sup_msg}",
+                        f"your heart rate reached {hr_data.get('max')}",
+                        f"this is {hr_data.get('max')-hr_data.get("reference")} {more_or_less(hr_data.get('max')-hr_data.get("reference"))} than your refference of {hr_data.get('reference')} BPM",
+                        "________________________________________",
+                        f"your skin response reached {sr_data.get('max')}",
+                        f"this is {sr_data.get("max")-sr_data.get('reference')} {more_or_less(sr_data.get('max')-sr_data.get("reference"))} than your refference of {sr_data.get('reference')}",
+                        "________________________________________",
+
+                        f"your temperature reached {temp_data.get("max")}",
+                        f"this is {temp_data.get("max")-temp_data.get("reference")} {more_or_less(temp_data.get('max')-temp_data.get("reference"))} than your refference of {temp_data.get("reference")} degrees",
+                        "________________________________________",
+                        f"your activety level reached {al_data.get("max")}",
+                        f"your minimum activety level was {al_data.get("min")}, your maximum activety level was {al_data.get("max")}, this is a span of {al_data.get("max")-al_data.get("min")} across the session",
+                        "________________________________________",
+                        "your average values were as follows",
+                        f"average heart rate across the session {round(hr_data.get("avg"), 1)}",
+                        f"average skin response across the session {round(sr_data.get("avg"), 2)}",
+                        f"average temperature across the session {round(temp_data.get("avg"),2)}",
+                        f"average activety level across the session {round(al_data.get("avg"), 2)}",
+                        f"recovery period? {recovery_check}"
+                        ]
+        poor_data=["the data for this session was corrupted or not adequate for data processing",
+                   "please adjust tracker"]
+
+
+
+        try:
+            if hr_data is None or sr_data is None or temp_data is None or al_data is None:
+                return "missing data (line 446)"
+            elif all(isinstance(data, dict) for data in data_list):
+                if hr_data.get("max")==0:
+                    return poor_data
+                else:
+                    return summary_lines
+            else:
+                return ["something went wrong(line 451)",""]
+
+        except:
+            return ["something went wrong(line 451)",""]

@@ -54,34 +54,53 @@ profile4, data4=poor_quality()
 profile5, data5=recovery()
 
 print("-------------test Sessions class------------------")
-test3=sest(data1,data1,data2,data5)
+test3=sest(data2,data2,data3,data3)
 x,y= test3.ValidateAll()
 # print(x)
 # print("*******************************")
-print(y)
+# print(y)
 
 
 print("-------------test SessionsMath class------------------")
-test4=sesMa(profile1, data1,data1,data2,data5)
-hr_i=test4.hr_info()
-sr_i=test4.sr_info()
-temp_i=test4.temp_info()
-al_i=test4.al_info()
-sig_i=test4.signal_info()
+# test4=sesMa(profile1, data1,data1,data1,data1)
+# test4=sesMa(profile1, data2,data2,data2,data2)
+# test4=sesMa(profile1, data3,data3,data3,data3)
+# test4=sesMa(profile1, data4,data4,data4,data4)
+# test4=sesMa(profile1, data5,data5,data5,data5)
+test4=sesMa(profile1, data1,data1,data3,data3)
 
-print("hr",hr_i)
+print("*recoveryTracker*")
+rec_trac, rec_trac_msg=test4.recoveryTracker()
+# print(rec_trac)
+# print(rec_trac_msg)
+
+print("*print info *")
+hr_i=test4.hr_info(rec_trac_msg)
+sr_i=test4.sr_info(rec_trac_msg)
+temp_i=test4.temp_info(rec_trac_msg)
+al_i=test4.al_info(rec_trac_msg)
+sig_i=test4.signal_info(rec_trac_msg)
+
+# print("hr",hr_i)
 # print("sr",sr_i)
 # print("temp",temp_i)
 # print("al", al_i)
 # print("sig", sig_i)
 
 print("*print all data*")
-print(test4.all_info_dict)
-print("*recoveryTracker*")
-rec_trac, rec_trac_msg=test4.recoveryTracker()
-print(rec_trac)
-print(rec_trac_msg)
+# print(test4.all_info_dict)
+
 
 print("*classify*")
 classify_s=test4.SessionClassification()
-print(classify_s)
+# print(classify_s)
+
+print("*majority*")
+maj=test4.majority_session(classify_s)
+# print(maj)
+#hr_data=None, sr_data=None, temp_data=None, al_data=None, activety_type=None, recover_status=None
+obj=test4.SessionLog(hr_i,sr_i,temp_i,al_i, maj, rec_trac)
+if isinstance(obj,list):
+    print(*obj, sep='\n', end="\n")
+else:
+    print("printing data summary failed")
