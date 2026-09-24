@@ -75,7 +75,8 @@ the code is based on a two tiere classification aproach, first through data comp
 
 **how to run:**
 
-'''bash
+git clone https://github.com/TealIshOne/Oblig1_acit4420.git
+  cd Oblig1_acit4420
 
 python3 main.py
 
