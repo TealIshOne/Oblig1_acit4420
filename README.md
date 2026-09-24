@@ -20,13 +20,13 @@ The main outputs to concider is a human readable printout of relevant data, alon
 
 ## Class design and explanation of each class's responsibility (OOC architechture
 
-## assumptions and classification rules
+## Assumptions and classification rules
 
-the code is based on a two tiere classification aproach, first through data comparison to baseline thresholds, then determining overall session tyoe via majority voting and trend detection
+The code is based on a two tiere classification aproach, first through data comparison to baseline thresholds, then determining overall session tyoe via majority voting and trend detection.
 
-1. metric-level classification rules:
-   1. resting: hr<=baselineHR +10BPM
-   2. moderate act: baselineHR +10BPM < hr <baselineHR +30BPM
+1. Metric-level classification rules:
+   1. Resting: hr<=baselineHR +10BPM
+   2. Moderate act: baselineHR +10BPM < hr <baselineHR +30BPM
    3. high act: baselineHR +30BPM < hr <220   //a value taken from rule that max heart rate should be 220 -your age, this account for slight signal missalignment but is still sensibly restricted
    4. inconclusive: signal quality <0.5, or missing data
 2. classification and priority rules:
@@ -97,7 +97,59 @@ the test.py script automaticly evaluates the following sections in order:
    5. scenario: poor quality,  evaluates ystem resilience to poor signal quality, type changes
 3. additional functionalities (mixed signal innput): evaluates multi-session-type combinations (e.g. resting +high ) and malformed data arrays
 
-code snippit:
+code print snippit:
+
+
+--- Case 4: High Activity + High Activity + Recovery ---
+Result: Classified as 'high activity' | Recovery detected: True
+
+---
+
+you just finished a session of high activity
+great!
+
+---
+
+your maximum values across the sessions were:
+your heart rate reached................................ 150 BPM
+your skin respone reached.............................. 2.11
+your temperature rate reached.......................... 32.94 C
+your activety level reached............................ 0.92
+
+---
+
+your average values across the sessions were:
+your heart rate averaged............................... 133.1 BPM
+your skin respone averaged............................. 1.81
+your temperature averaged.............................. 32.5 C
+your acticity level averaged........................... 0.74
+
+---
+
+your minimum values across the sessions were:
+your heart rate hit.................................... 87 BPM
+your skin respone hit.................................. 1.42
+your temperature hit................................... 31.87 C
+your activity level hit................................ 0.12
+
+---
+
+your ranges were as follows
+your heart rate spanned................................ 63 BPM
+your skin respone spanned.............................. 0.69
+your temperature spanned............................... 0.63 C
+your acticety level spanned............................ 0.8
+
+---
+
+recovery period?....................................... yes
+invalid data count?.................................... 0
+valid data count?...................................... 36
+
+---
+
+[Structured Dictionary Output]:
+{'HEARTRATE': {'reference': 73, 'max': 150, 'avg': 133.1, 'min': 87}, 'SKINRESPONSE': {'reference': 2.28, 'max': 2.11, 'avg': 1.81, 'min': 1.42}, 'TEMPERATURE': {'reference': 32.12, 'max': 32.94, 'avg': 32.5, 'min': 31.87}, 'ACTIVITY': {'reference': 'NA', 'max': 0.92, 'avg': 0.74, 'min': 0.12}, 'RECOVERY': True, 'ACTIVETY TYPE': 'high activity', 'DATASET w/INVALID DATA': 0, 'DATASET w/VALID DATA': 3, 'INVALIDCOUNT': 0, 'VALIDCOUNT': 36}
 
 
 ## Known limitations
