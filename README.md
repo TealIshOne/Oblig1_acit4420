@@ -27,20 +27,20 @@ The code is based on a two tiere classification aproach, first through data comp
 1. Metric-level classification rules:
    1. Resting: hr<=baselineHR +10BPM
    2. Moderate act: baselineHR +10BPM < hr <baselineHR +30BPM
-   3. high act: baselineHR +30BPM < hr <220   //a value taken from rule that max heart rate should be 220 -your age, this account for slight signal missalignment but is still sensibly restricted
-   4. inconclusive: signal quality <0.5, or missing data
-2. classification and priority rules:
-   1. bad/corrupted data: if signal quality is to low  or valid observations reach zero the session is qualified as `"session type inconclusive due to missing / bad data"`
-   2. recovery override rule: if recoverytracker() detects downwards trend i.e. recovery session, the data is omitted to avoid data "polution", the recovery max level will in some instances get the session flagged as high activety. if all datasets are recovery the  math functions default to raw valid data.
-   3. majority counting rule, will in cases of no recovery default to a "majority type" rule, when counting majority the, if there are two of the same classifications, e.g. rest +rest + mod + mod, will default to rest classification as it is the first instance met in the if else statments that determines classification
-   4. tie-breaker: if the session types are equal, the session is labled "inconclusive or unknown sessiontype"
+   3. High act: baselineHR +30BPM < hr <220   //a value taken from rule that max heart rate should be 220 -your age, this account for slight signal missalignment but is still sensibly restricted
+   4. Inconclusive: signal quality <0.5, or missing data
+2. Classification and priority rules:
+   1. Bad/Corrupted data: if signal quality is to low  or valid observations reach zero the session is qualified as `"session type inconclusive due to missing / bad data"`
+   2. Recovery override rule: if recoverytracker() detects downwards trend i.e. recovery session, the data is omitted to avoid data "polution", the recovery max level will in some instances get the session flagged as high activety. if all datasets are recovery the  math functions default to raw valid data.
+   3. Majority counting rule, will in cases of no recovery default to a "majority type" rule, when counting majority the, if there are two of the same classifications, e.g. rest +rest + mod + mod, will default to rest classification as it is the first instance met in the if else statments that determines classification
+   4. Tie-breaker: if the session types are equal, the session may be labled "inconclusive or unknown sessiontype"
 
-## stated assumptions:
+## Stated assumptions:
 
-1. baseline accuracy: the provided datagenerator is assumed to be accurate in its data generation, although the temperature does seems low
-2. the  timing of  datasets passed to sessionMath is assumed to be of no importance as there is no timing concernes or handeling in the code
-3. data scope:  summary metrics (min, max, avg) are calculated across valid and usable observations combined. unusable or corrupted data is omitted in these calculations to prevent skewage
-4. when low activety and high activety data sessions are entered together the session returned is the average of the sessions across al sessions,
+1. Baseline accuracy: the provided datagenerator is assumed to be accurate in its data generation, although the temperature does seems low
+2. The  timing of  datasets passed to sessionMath is assumed to be of no importance as there is no timing concernes or handeling in the code
+3. Data scope:  summary metrics (min, max, avg) are calculated across valid and usable observations combined. unusable or corrupted data is omitted in these calculations to prevent skewage
+4. When low activety and high activety data sessions are entered together the session returned is the average of the sessions across al sessions,
 
 ### *Participant*
 
@@ -68,12 +68,12 @@ The code is based on a two tiere classification aproach, first through data comp
 
 ## Instructions to install and run the code
 
-**prerequisits**:
+**Prerequisits**:
 
 * Python 3.14
 * no external third-party dependencies  required (built using standard Python lib)
 
-**how to run:**
+**How to run:**
 
 git clone https://github.com/TealIshOne/Oblig1_acit4420.git
   cd Oblig1_acit4420
@@ -84,7 +84,7 @@ python3 tests.py
 
 ## Example output
 
-### summary of tested scenarios
+### Summary of tested scenarios
 
 the test.py script automaticly evaluates the following sections in order:
 
@@ -161,8 +161,8 @@ valid data count?...................................... 36
 * **Threshold boundaries:** session classification is reliant on fixed offsets boundaries,
   these may not be accurate and are not personalied to different personal thresholds
   that may differe between participants
-* **recovery removal:** recovery values are removed from datasets so they do not polute calculations
+* **Recovery removal:** recovery values are removed from datasets so they do not polute calculations
   and classification efforts.this is because these functions are based on threshold values. and the
   high to low nature of recovery caused issues with  classification  and was labled as high activety
   due to the way the code was designed.
-* **joint data classification**: when multiple session data sets is used, the code runs math across the joint dataset and not individually for classification purposes. this means that when e.g. resting + resting + highactivity + high activity, data sets are entered the code will classify this joint session as moderate, and will not return the  dataset as inconclusive
+* **Joint data classification**: when multiple session data sets is used, the code runs math across the joint dataset and not individually for classification purposes. this means that when e.g. resting + resting + highactivity + high activity, data sets are entered the code will classify this joint session as moderate, and will not return the  dataset as inconclusive
