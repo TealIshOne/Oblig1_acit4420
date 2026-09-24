@@ -26,13 +26,13 @@ the code is based on a two tiere classification aproach, first through data comp
 
 1. metric-level classification rules:
    1. resting: hr<=baselineHR +10BPM
-   2. moderate act: baselineHR +10BPM < hr <baselineHR +25BPM
-   3. high act: baselineHR +25BPM < hr <220   //a value taken from rule that max heart rate should be 220 -your age, this account for slight signal missalignment but is still sensibly restricted
+   2. moderate act: baselineHR +10BPM < hr <baselineHR +30BPM
+   3. high act: baselineHR +30BPM < hr <220   //a value taken from rule that max heart rate should be 220 -your age, this account for slight signal missalignment but is still sensibly restricted
    4. inconclusive: signal quality <0.5, or missing data
 2. classification and priority rules:
    1. bad/corrupted data: if signal quality is to low  or valid observations reach zero the session is qualified as `"session type inconclusive due to missing / bad data"`
    2. recovery override rule: if recoverytracker() detects downwards trend i.e. recovery session, the data is omitted to avoid data "polution", the recovery max level will in some instances get the session flagged as high activety. if all datasets are recovery the  math functions default to raw valid data.
-   3. majority counting rule, will in cases of no recovery default to a "majority type" rule
+   3. majority counting rule, will in cases of no recovery default to a "majority type" rule, when counting majority the, if there are two of the same classifications, e.g. rest +rest + mod + mod, will default to rest classification as it is the first instance met in the if else statments that determines classification
    4. tie-breaker: if the session types are equal, the session is labled "inconclusive or unknown sessiontype"
 
 ## stated assumptions:
@@ -113,4 +113,4 @@ code snippit:
   and classification efforts.this is because these functions are based on threshold values. and the
   high to low nature of recovery caused issues with  classification  and was labled as high activety
   due to the way the code was designed.
-* joint data classification: when multiple session data sets is used, the code runs math across the joint dataset and not individually for classification purposes. this means that when e.g. resting + resting + highactivity + high activity, data sets are entered the code will classify this joint session as moderate, and will not return the  dataset as inconclusive
+* **joint data classification**: when multiple session data sets is used, the code runs math across the joint dataset and not individually for classification purposes. this means that when e.g. resting + resting + highactivity + high activity, data sets are entered the code will classify this joint session as moderate, and will not return the  dataset as inconclusive
