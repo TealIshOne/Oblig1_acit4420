@@ -18,10 +18,7 @@ The program classifies the session type, detects recovery period, counts valid/i
 
 The main outputs to concider is a human readable printout of relevant data, alongside a summary dictionary of the same data
 
-## Class design and explanation of each class's responsibility (OOC architechture)
-
---> Clear identification of where composition, encapsulation, inheritance, and overriding are used (or justified
-
+## Class design and explanation of each class's responsibility (OOC architechture
 
 ## assumptions and classification rules
 
