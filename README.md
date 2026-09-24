@@ -112,3 +112,4 @@ code snippit:
   and classification efforts.this is because these functions are based on threshold values. and the
   high to low nature of recovery caused issues with  classification  and was labled as high activety
   due to the way the code was designed.
+* joint data classification: when multiple session data sets is used, the code runs math across the joint dataset and not individually for classification purposes. this means that when e.g. resting + resting + highactivity + high activity, data sets are entered the code will classify this joint session as moderate, and will not return the  dataset as inconclusive

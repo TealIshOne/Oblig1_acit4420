@@ -49,7 +49,8 @@ def run_scenarios(scenario_name, session_type_func):
 
     # classify session as activety type, and find mean activety type
     classification =session.SessionClassification()
-    majority_result=session.majority_session(classification, rec_trac)
+    # print(classification)
+    majority_result=session.majority_session(classification, is_recovery=rec_trac)
 
     formated_log=session.SessionLogPrint(
         hr_i, sr_i, temp_i, al_i, majority_result, rec_trac
@@ -83,6 +84,7 @@ def analyze_and_print_mixed(case_title, profile, *session_datasets):
 
     # 3. Classify
     classification = session.SessionClassification()
+    # print(classification)
     majority_result = session.majority_session(classification, is_recovery=rec_trac)
     print(f"Result: Classified as '{majority_result}' | Recovery detected: {rec_trac}")
 
@@ -127,11 +129,12 @@ def mixed_sessions():
         profile, res_data, res_data, high_data, high_data
     )
 
-    # Case 2: Resting + Recovery + Resting + High --> will return moderate as the average values of 
-    # rest+rest+high returns moderate over the multiple sesions
+    # Case 2: Resting + Recovery + High + Moderate  --> will return recovery as the average values of 
+    # data across Resting ++ High + Moderate is combined and  returns "moderate" values across the multiple sessions and is recovery is tru
+    # recovery = true + moderate activety is tagged as recovery
     analyze_and_print_mixed(
-        "Case 2: Resting + Recovery + Resting + High Activity",
-        profile, res_data, rec_data, res_data, high_data
+        "Case 2: Resting + Recovery + High + Moderate Activity",
+        profile, res_data, rec_data, high_data, mod_data
     )
 
     # Case 3: Faulty / Corrupt Dataset --> will return moderate activety as activety 
@@ -139,6 +142,12 @@ def mixed_sessions():
     analyze_and_print_mixed(
         "Case 3: Moderate Activity + Poor Quality Data",
         profile, mod_data, poor_data
+    )
+
+    # Case 4: to showcase that not everything gets tagged as moderate data
+    analyze_and_print_mixed(
+        "Case 4: High Activity + High Activity + Recovery",
+        profile, high_data, high_data, rec_data
     )
 
     

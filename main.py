@@ -556,7 +556,7 @@ class sessionMath(SessionsStorage):
                     type_data["heart_rate"] = "---"
                 elif 0 < hr_avg < self.participant._baseline_hr +10:
                     type_data["heart_rate"] = "resting"
-                elif hr_avg < self.participant._baseline_hr+25:
+                elif hr_avg < self.participant._baseline_hr+30:
                     type_data["heart_rate"] = "moderate activity"
                 elif  hr_avg < 220: # general formulas set 220 as maximum heartrate value before heart damage
                     type_data["heart_rate"] = "high activity"
@@ -609,21 +609,22 @@ class sessionMath(SessionsStorage):
         values=list(type_data.values())
         #since the data_generator is based on rng and gauss distribution some values may become autliers and reult in,
         # some parameters not linight perfectly up with the others, by checking for majority/ minimum of 3 equals, 
-        # I hope to mittigate this issue
+        #  to mittigate this issue
         if self.summary_data["heart_rate"].get("max")==0:
             return "session type inconclusive due to missing / bad data"
 
-
-        if majority(values,"resting"):
+        if is_recovery and majority(values, "moderate activity"):
+            return "recovery"
+        elif majority(values,"resting"):
             return "resting"
         elif majority(values, "moderate activity"):
             return "moderate activity"
         elif majority(values, "high activity"):
             return "high activity"
-        elif is_recovery or self.majority_session("---"):
-            return "recovery"
+        # elif is_recovery or majority(values, "---"):
+        #     return "recovery"
         else:
-            return f"inconclusive or unknown session type, {values}"
+            return f"inconclusive or unknown session type"
 
     def SessionLogPrint(self,hr_data=None, sr_data=None, temp_data=None, al_data=None, activety_type=None, recover_status=None):
         "this function presents the calculated datas, and returns an ecouraging message"
